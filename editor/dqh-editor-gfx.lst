@@ -1,0 +1,445 @@
+CLEAR ,50000&
+CHDIR"extras1.3d:basicdemos/"
+LIBRARY"graphics.library"
+LIBRARY"dos.library"
+LIBRARY"exec.library"
+DECLARE FUNCTION xOpen& LIBRARY
+DECLARE FUNCTION xread& LIBRARY
+DECLARE FUNCTION AllocMem&() LIBRARY
+DEFINT a-z:DIM bit&(1,2),obr.M&(9,2),array(1731),www(2883),pod(2907)
+DEF FNd1=ASC(INPUT$(1,1))
+DEF FNd2=CVI(INPUT$(2,1))
+CHDIR "devil:"
+SCREEN 1,329,221,3,1:res=1:win=2
+SCREEN 2,816,564,3,1
+WINDOW 3,,,0,2:f.1:jx=WINDOW(2):jy=WINDOW(3):FOR i=0 TO 2:bit&(0,i)=PEEKL((PEEKL(PEEKL(WINDOW(7)+46)+84+4))+8+(i*4)):NEXT
+WINDOW 2,,,2,1:f.1
+FOR i=0 TO 2:bit&(1,i)=PEEKL((PEEKL(PEEKL(WINDOW(7)+46)+84+4))+8+(i*4)):NEXT
+GOSUB Lti
+menu0
+ON MENU GOSUB men1
+MENU ON
+
+10 a$=INKEY$
+WHILE a$="":a$=INKEY$
+dum=MOUSE(0):x=INT(MOUSE(1)/res)*res:y=INT(MOUSE(2)/res)*res
+MENU STOP
+setdrmd& WINDOW(8),3
+LINE(0,y)-(WINDOW(2),y):LINE(x,0)-(x,WINDOW(3))
+LINE(0,y)-(WINDOW(2),y):LINE(x,0)-(x,WINDOW(3))
+setdrmd& WINDOW(8),1
+MENU ON
+IF dum<>0 THEN
+MENU ON
+MENU STOP
+WHILE dum<>0:dum=MOUSE(0):mx=INT(MOUSE(1)/res)*res-1:my=INT(MOUSE(2)/res)*res-1
+IF ABS(mx-x)>95 THEN mx=x+95
+IF ABS(my-y)>95 THEN my=y+95
+setdrmd& WINDOW(8),3
+LINE(x,y)-(mx,my),,b:LINE(x,y)-(mx,my),,b
+setdrmd& WINDOW(8),1
+WEND:dum=0
+IF win=2 THEN GET(x,y)-(mx,my),array:dat$=dat$+CHR$(win)+MKI$(x)+MKI$(y)+CHR$(ABS(mx-x))+CHR$(ABS(my-y))
+IF win=3 THEN WINDOW OUTPUT 3:GET(wx+x,wy+y)-(wx+mx,wy+my),array:WINDOW OUTPUT 2:dat$=dat$+CHR$(win)+MKI$(wx+x)+MKI$(wy+y)+CHR$(ABS(mx-x))+CHR$(ABS(my-y)):win=2:PUT(0,0),pod,PSET:srt=1
+WHILE MOUSE(0)=0:x=INT(MOUSE(1)/res)*res:y=INT(MOUSE(2)/res)*res
+PUT(x,y),array:PUT(x,y),array
+a$=INKEY$
+IF MENU(0)=1 AND MENU(1)=6 AND res=1 THEN res=16
+IF MENU(0)=1 AND MENU(1)=6 AND res=16 THEN res=1
+WEND
+PUT(x,y),array
+dat$=dat$+MKI$(x)+MKI$(y)
+naj=naj+1
+WHILE MOUSE(0)<>0:WEND
+IF srt=1 THEN srt=0:win=3:GET(0,0)-(120,120),pod:WINDOW OUTPUT 3:GET(wx,wy)-(wx+119,wy+119),www:WINDOW OUTPUT 2:PUT(0,0),www,PSET:LINE(-1,-1)-(120,120),1,b
+END IF
+WEND
+MENU STOP
+IF win=3 AND ASC(a$)>27 AND ASC(a$)<32 THEN ON ASC(a$)-27 GOSUB hore,dole,pravo,lavo:WINDOW OUTPUT 3:GET(wx,wy)-(wx+119,wy+119),www:WINDOW OUTPUT 2:PUT(0,0),www,PSET:GOTO 10
+IF a$="s" THEN GOSUB savefile
+IF a$=" " THEN GOSUB openfile
+IF a$="" AND win=3 THEN MENU 2,1,2:MENU 2,2,1:win=2:PUT(0,0),pod,PSET
+IF a$="‚" AND win=2 THEN MENU 2,1,1:MENU 2,2,2:win=3:GET(0,0)-(120,120),pod:WINDOW OUTPUT 3:GET(wx,wy)-(wx+119,wy+119),www:WINDOW OUTPUT 2:PUT(0,0),www,PSET:LINE(-1,-1)-(120,120),1,b
+IF a$=CHR$(27) THEN GOSUB newreg
+IF a$="r" THEN GOSUB redraw
+IF a$="u" THEN GOSUB undo
+MENU ON
+GOTO 10
+
+undo:IF dat$="" THEN BEEP:RETURN
+IF win=3 THEN PUT(0,0),pod,PSET
+u=LEN(dat$)-10
+DIM u(6)
+getU u
+WINDOW OUTPUT u(0)
+GET(u(1),u(2))-(u(1)+u(3),u(2)+u(4)),array
+WINDOW OUTPUT 2
+PUT(u(5),u(6)),array
+SOUND 300,.5
+dat$=LEFT$(dat$,u-1)
+ERASE u
+
+IF win=3 THEN GET(0,0)-(120,120),pod:WINDOW OUTPUT 3:GET(wx,wy)-(wx+119,wy+119),www:WINDOW OUTPUT 2:PUT(0,0),www,PSET:LINE(-1,-1)-(120,120),1,b
+RETURN
+
+cord:IF win=3 THEN win=2:PUT(0,0),pod,PSET
+u=LEN(dat$)/11:DIM u(6):naj=u:u$=""
+22 MENU STOP:IF u=0 AND dat$<>"" THEN u=1
+IF dat$="" THEN u=0
+a$="":IF u<>0 THEN
+t=u*11-10
+getU t
+WINDOW OUTPUT u(0)
+GET(u(1),u(2))-(u(1)+u(3),u(2)+u(4)),array
+WINDOW OUTPUT 2
+ELSE
+GET(0,0)-(10,10),array
+u(0)=16:u(1)=16:u(2)=WINDOW(2)-16:u(3)=WINDOW(3)-16
+END IF
+WHILE MOUSE(0)<>0:WEND
+WHILE a$="" AND navrat=0:a$=INKEY$
+MENU ON
+MENU STOP
+IF MOUSE(0)<>0 THEN
+mx=MOUSE(1):my=MOUSE(2)
+WHILE MOUSE(0)<>0:WEND
+FOR i=1 TO LEN(dat$) STEP 11
+x=CVI(MID$(dat$,i+7,2)):y=CVI(MID$(dat$,i+9,2))
+IF mx>x AND my>y AND mx<x+ASC(MID$(dat$,i+5,1)) AND my<y+ASC(MID$(dat$,i+6,1)) THEN u=i/11+1:i=LEN(dat$)+1:GOTO 22
+NEXT
+END IF
+setdrmd& WINDOW(8),2
+LINE(u(5),u(6))-STEP(u(3),u(4)),,b
+PUT(u(5),u(6)),array
+LINE(u(5),u(6))-STEP(u(3),u(4)),,b
+PUT(u(5),u(6)),array
+setdrmd& WINDOW(8),1
+MENU ON
+WEND
+IF navrat=1 THEN a$="ULK"
+IF a$=CHR$(31) AND u>1 THEN u=u-1
+IF a$=CHR$(30) AND u<naj THEN u=u+1
+
+IF navrat=1 THEN ERASE u:RETURN
+GOTO 22
+
+redraw:MENU OFF
+CLS:FOR i=1 TO LEN(dat$) STEP 11
+x=CVI(MID$(dat$,i+1,2))
+y=CVI(MID$(dat$,i+3,2))
+WINDOW OUTPUT ASC(MID$(dat$,i,1))
+GET(x,y)-(x+ASC(MID$(dat$,i+5,1)),y+ASC(MID$(dat$,i+6,1))),array
+WINDOW OUTPUT 2
+PUT(CVI(MID$(dat$,i+7,2)),CVI(MID$(dat$,i+9,2))),array
+NEXT
+MENU ON
+RETURN
+
+hore:wy=wy-16:IF wy<0 THEN wy=0
+RETURN
+
+dole:wy=wy+16:IF wy>432 THEN wy=432
+RETURN
+
+pravo:wx=wx+16:IF wx>688 THEN wx=688
+RETURN
+
+lavo:wx=wx-16:IF wx<0 THEN wx=0
+RETURN
+
+newreg:win=2:dat$=""
+WINDOW OUTPUT 2:CLS
+RETURN
+
+savefile:IF win=3 THEN PUT(0,0),pod,PSET:win=2
+20 LOCATE 24,1:INPUT "FILENAME>",nam$
+IF nam$="" THEN 20
+OPEN"o",1,nam$
+PRINT #1,MKI$(LEN(dat$)/11);dat$;
+CLOSE
+RETURN
+
+openfile:GOSUB newreg
+20 LOCATE 24,1:INPUT "FILENAME>",nam$
+IF nam$="" THEN 20
+CLS
+file&=xOpen&(SADD(nam$+CHR$(0)),1005) 
+IF file&<>0 THEN
+xClose& file&
+OPEN"i",1,nam$
+OPEN"i",2,nam$
+num=CVI(INPUT$(2,2))
+dat$=INPUT$(LOF(2)-2,2)
+num=FNd2
+FOR i=1 TO num
+WINDOW OUTPUT FNd1:x=FNd2:y=FNd2
+GET(x,y)-(x+FNd1,y+FNd1),array
+WINDOW OUTPUT 2
+PUT(FNd2,FNd2),array
+NEXT
+CLOSE
+END IF
+RETURN
+
+Lti:file&=xOpen&(SADD("devil:obrazok"+CHR$(0)),1005):IF file&=0 THEN gameError
+FOR i=0 TO 2:long&=xread&(file&,bit&(0,i),57528&):NEXT:xClose& file&
+RETURN
+
+men1:MENU OFF
+punkt=MENU(0)
+
+IF punkt=1 THEN
+me=MENU(1)
+IF me=1 THEN
+GOSUB undo
+ELSEIF me=2 THEN
+GOSUB redraw
+ELSEIF me=4 THEN
+GOSUB newreg
+ELSEIF me=5 THEN
+GOSUB openfile
+ELSEIF me=6 THEN
+GOSUB savefile
+ELSEIF me=7 THEN
+IF res=1 THEN res=16 ELSE res=1
+END IF
+
+ELSEIF punkt=2 THEN
+me=MENU(1)
+IF me=1 AND win=3 THEN
+win=2:PUT(0,0),pod,PSET:MENU 2,1,2:MENU 2,2,1
+ELSEIF me=2 AND win=2 THEN
+win=3:GET(0,0)-(120,120),pod:WINDOW OUTPUT 3:GET(wx,wy)-(wx+119,wy+119),www:WINDOW OUTPUT 2:PUT(0,0),www,PSET:LINE(-1,-1)-(120,120),1,b
+MENU 2,1,1:MENU 2,2,2
+ELSEIF me=5 THEN
+CALL menu2:ON MENU GOSUB men2:navrat=0
+MENU ON:GOSUB cord:MENU OFF
+CALL menu1:ON MENU GOSUB men1
+END IF
+END IF
+MENU ON
+RETURN
+
+men2:MENU OFF
+punkt=MENU(0)
+IF punkt=1 THEN
+me=MENU(1)
+IF me=3 AND dat$<>"" THEN 
+naj=naj-1
+u$=MID$(dat$,t,11):und=u
+getU t
+WINDOW OUTPUT u(0)
+GET(u(1),u(2))-(u(1)+u(3),u(2)+u(4)),array
+WINDOW OUTPUT 2
+PUT(u(5),u(6)),array
+dat$=LEFT$(dat$,t-1)+RIGHT$(dat$,LEN(dat$)-10-t):u=u-1
+IF u<>naj THEN GOSUB redraw
+ELSEIF me=3 AND dat$="" THEN
+GOSUB newreg
+ELSEIF me=1 AND u$<>"" THEN
+naj=naj+1:u=und:t=u*11-10:dat$=LEFT$(dat$,t-1)+u$+RIGHT$(dat$,LEN(dat$)-t+1):u$=""
+GOSUB redraw
+ELSEIF me=6 THEN
+GOSUB redraw
+ELSEIF me=7 THEN
+winko 6,6,194,204,6
+COLOR 0,1
+LOCATE 2,6:PRINT "REGION INFO:"
+COLOR 3
+LOCATE 4,2:PRINT "Total    -";LEN(dat$)/11
+COLOR 7
+LOCATE 5,2:PRINT "Position -";u
+COLOR 0
+LOCATE 6,2:PRINT "From    X-";u(1);" Y-";u(2)
+LOCATE 7,2:PRINT "Current X-";u(5);" Y-";u(6)
+LOCATE 8,2:PRINT "Long    X-";u(3);" Y-";u(4)
+COLOR 2:LOCATE 9,8:PRINT "- EXIT -"
+COLOR 1,0 
+GOSUB 33
+a$="":WHILE MOUSE(0)<>0:WEND:x=0:y=0
+WHILE a$<>"OK"
+WHILE MOUSE(0)=0 OR MOUSE(1)>202 OR y<4 OR y>8
+y=INT(MOUSE(2)/8)
+WEND
+a$=""
+setdrmd& WINDOW(8),2
+LINE(8,y*8-1)-STEP(184,7),,bf
+WHILE MOUSE(0)<>0:WEND
+LINE(8,y*8-1)-STEP(184,7),,bf
+setdrmd& WINDOW(8),1
+IF y=4 THEN
+GET(212,4)-(300,60),pod
+winko 214,6,258,18,2
+winko 262,6,294,18,2
+winko 230,22,242,34,2
+winko 262,22,274,34,2
+winko 230,38,274,50,2
+COLOR 0,1
+LOCATE 2,28:PRINT "START"
+LOCATE 2,34:PRINT "END"
+LOCATE 4,30:PRINT "-":LOCATE 4,34:PRINT "+"
+LOCATE 6,30:PRINT "EXIT 
+WHILE a$="":num=0
+WHILE MOUSE(0)=0:IF num=100 THEN
+LINE(88,40)-(184,64),1,bf
+COLOR 0,1
+LOCATE 6,2:PRINT "From    X-";u(1);" Y-";u(2)
+LOCATE 7,2:PRINT "Current X-";u(5);" Y-";u(6)
+LOCATE 8,2:PRINT "Long    X-";u(3);" Y-";u(4)
+COLOR 1,0:num=101
+ELSE
+num=num+1 
+END IF
+WEND
+x=MOUSE(1):y=MOUSE(2)
+WHILE MOUSE(0)<>0:WEND
+IF x>214 AND y>6 AND x<258 AND y<18 THEN
+u=1
+ELSEIF x>262 AND y>6 AND x<294 AND y<18 THEN
+u=LEN(dat$)/11
+ELSEIF x>230 AND y>22 AND x<242 AND y<34 AND u>1 THEN
+u=u-1
+ELSEIF x>262 AND y>22 AND x<274 AND y<34 AND u<LEN(dat$)/11 THEN
+u=u+1
+ELSEIF x>230 AND y>38 AND x<274 AND y<50 THEN
+a$="EXIT"
+END IF
+t=u*11-10:getU t:COLOR 7,1
+LOCATE 5,2:PRINT "Position -";u:COLOR 1,0
+GOSUB 33
+WEND
+PUT(212,4),pod,PSET
+
+ELSEIF y=5 AND a$="" THEN
+GET(212,4)-(306,60),pod
+winko 214,6,302,50,2
+'winko 214,6,258,18,2
+'winko 262,6,302,18,2
+'winko 214,22,258,34,2
+'winko 262,22,302,34,2
+'winko 214,38,258,50,2
+'winko 262,38,302,50,2
+COLOR 0,1
+LOCATE 2,28:PRINT "HORE"
+LOCATE 2,34:PRINT "DOLE"
+LOCATE 4,28:PRINT "<---":LOCATE 4,34:PRINT "--->"
+COLOR 2:LOCATE 6,28:PRINT "EXIT":COLOR 3:LOCATE 6,34:PRINT "SAVE" 
+t=u*11-10:getU t:IF u(0)=2 THEN a$="EXIT":BEEP
+COLOR 1,0
+WHILE a$=""
+WHILE MOUSE(0)=0:WEND
+x=MOUSE(1):y=MOUSE(2)
+IF x>212 AND y>4 AND x<260 AND y<18 AND u(2)>0 THEN
+u(2)=u(2)-1
+ELSEIF x>262 AND y>6 AND x<304 AND y<18 AND u(2)+u(4)<432 THEN
+u(2)=u(2)+1
+ELSEIF x>212 AND y>22 AND x<260 AND y<34 AND u(1)>0 THEN
+u(1)=u(1)-1
+ELSEIF x>260 AND y>22 AND x<302 AND y<34 AND u(1)+u(3)<688 THEN
+u(1)=u(1)+1
+ELSEIF x>212 AND y>38 AND x<260 AND y<50 THEN
+a$="EXIT"
+END IF
+WINDOW OUTPUT 3:GET(u(1),u(2))-(u(1)+u(3),u(2)+u(4)),array
+WINDOW OUTPUT 2:PUT(92-u(3)/2,90),array,PSET
+x=MOUSE(0)
+WEND
+PUT(212,4),pod,PSET
+ELSEIF y=6 AND a$="" THEN
+ELSEIF y=7 AND a$="" THEN
+ELSEIF y=8 AND a$="" THEN
+a$="OK"
+END IF
+WEND
+a$=""
+GOSUB redraw
+END IF
+
+ELSEIF punkt=2 THEN
+me=MENU(1)
+IF me=4 THEN 
+navrat=1
+END IF
+END IF
+RETURN 22
+
+33 LINE(6,80)-(184,196),1,bf
+num=92-u(3)/2
+IF u(0)=2 THEN
+LINE(num,90)-STEP(u(3),u(4)),0,bf
+LINE(num,90)-STEP(u(3),u(4)),2,b
+LINE(num,90)-STEP(u(3),u(4)),2
+LINE(num+u(3),90)-STEP(-u(3),u(4)),2
+ELSE
+WINDOW OUTPUT 3
+GET(u(1),u(2))-(u(1)+u(3),u(2)+u(4)),array
+WINDOW OUTPUT 2
+winko num-1,89,num+1+u(3),u(4)+91,2
+LINE(num-1,89)-STEP(u(3)+2,u(4)+2),0,b
+PUT(num,90),array,PSET
+END IF
+RETURN
+
+SUB getU(x) STATIC
+SHARED u(),dat$
+u(0)=ASC(MID$(dat$,x,1))
+u(1)=CVI(MID$(dat$,x+1,2))
+u(2)=CVI(MID$(dat$,x+3,2))
+u(3)=ASC(MID$(dat$,x+5,1))
+u(4)=ASC(MID$(dat$,x+6,1))
+u(5)=CVI(MID$(dat$,x+7,2))
+u(6)=CVI(MID$(dat$,x+9,2))
+END SUB
+
+SUB f.1 STATIC
+PALETTE 0,0,0,0:PALETTE 1,.8,.8,.8:PALETTE 2,0,.5,0:PALETTE 3,.8,0,0:PALETTE 4,1,.5,.5:PALETTE 5,0,1,1:PALETTE 6,1,.8,0:PALETTE 7,.26,.06,0
+END SUB
+
+SUB menu0 STATIC
+MENU 2,0,1,"Options"
+MENU 2,1,2,"  TOP Window"
+MENU 2,2,1,"  PIC Window"
+MENU 2,4,1,"  Pictures"
+MENU 2,5,1,"  Regions "
+menu1
+END SUB
+
+SUB menu1 STATIC
+MENU 2,4,2:MENU 2,5,1:MENU 2,1,2:MENU 2,2,1
+MENU 1,0,1,"Project"
+MENU 1,1,1,"UNDO      "
+MENU 1,2,1,"Redraw    "
+
+MENU 1,4,1,"Clear     "
+MENU 1,5,1,"OPEN      "
+MENU 1,6,1,"SAVE      "
+MENU 1,7,1,"Resistence"
+  
+END SUB
+
+SUB menu2 STATIC
+MENU 2,4,1:MENU 2,5,2:MENU 2,1,0:MENU 2,2,0
+MENU 1,0,1,"Project <R"
+MENU 1,1,1," - UNDO - "
+
+MENU 1,3,1,"Cut REGION"
+MENU 1,4,1,"Redraw    "
+MENU 1,5,1,"Remove    "
+MENU 1,6,0,"Exchange  "
+MENU 1,7,1,"MORE...   "
+END SUB
+
+SUB winko(x1% ,y1% ,x2% ,y2% ,fast% ) STATIC
+x1=x1%:x2=x2%:y1=y1%:y2=y2%:f=fast%-1
+sx=(x2-x1)/2+x1:sy=(y2-y1)/2+y1:stx=(sx-x1)/f:sty=(sy-y1)/f
+x1=sx:x2=sx:y1=sy:y2=sy
+FOR i=1 TO f
+x1=x1-stx:x2=x2+stx:y1=y1-sty:y2=y2+sty
+LINE(x1-2,y1-2)-(x2+2,y2+2),6,b
+LINE(x1-1,y1-1)-(x2+2,y2+2),7,b
+LINE(x1-1,y1-1)-(x2+1,y2+1),6,b
+LINE(x1,y1)-(x2+1,y2+1),7,b
+LINE(x1,y1)-(x2,y2),1,bf
+NEXT
+END SUB
+

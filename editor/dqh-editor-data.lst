@@ -1,0 +1,211 @@
+DATA PROJECT,Palko,SJVZ,Duchovia,Miesto,Teleport,SAVE,MOVE,QUIT,ISTE.M,Load
+DATA C1,C2,C3,C4,C5,C6,C7,C8,C9,C10
+CLEAR ,50000&
+CHDIR"extras1.3d:basicdemos/"
+LIBRARY"graphics.library"
+LIBRARY"dos.library"
+LIBRARY"exec.library"
+DECLARE FUNCTION xOpen& LIBRARY
+DECLARE FUNCTION xread& LIBRARY
+DECLARE FUNCTION AllocMem&() LIBRARY
+CHDIR "devil:"
+DEFINT a-z
+DIM lnam$(9),bit&(1,2),dat$(9),array(1731),duch(5),dd(9,3,7),iste(9)
+level=1:DEF FNl$(in)=INPUT$(LOF(in),in)
+DEF FNl1=ASC(INPUT$(1,1)) 
+DEF FNl2=CVI(INPUT$(2,1))
+SCREEN 1,328,256,3,1
+SCREEN 2,816,564,3,1
+WINDOW 3,,,0,2:f.1:FOR i=0 TO 2:bit&(0,i)=PEEKL((PEEKL(PEEKL(WINDOW(7)+46)+84+4))+8+(i*4)):NEXT
+WINDOW 2,,,0,1:f.1:WINDOW OUTPUT 2:FOR i=0 TO 2:bit&(1,i)=PEEKL((PEEKL(PEEKL(WINDOW(7)+46)+84+4))+8+(i*4)):NEXT
+FOR i=0 TO 10:READ a$:MENU 1,i,1,a$:NEXT
+FOR i=0 TO 9:READ lnam$(i):dat$(i)=STRING$(260,0):NEXT
+GOSUB lti
+GOSUB loadfile
+ON MENU GOSUB men
+MENU ON
+10 a$=INKEY$
+WHILE a$="":a$=INKEY$
+WEND
+GOTO 10
+men:MENU OFF
+punkt=MENU(MENU(0))
+ON punkt GOSUB palko,sjvz,duchovia,miesto,teleport,savefile,loadfile,quit,iste,loaddat
+MENU ON
+RETURN
+quit:MENU RESET:STOP
+
+palko:WINDOW OUTPUT 3:GET(0,0)-(15,31),array:WINDOW OUTPUT 2:teraz=1
+WHILE MOUSE(0)=0:x=INT(MOUSE(1)/16):y=INT(MOUSE(2)/16)
+PUT(x*16,y*16),array:PUT(x*16,y*16),array
+a$=INKEY$
+IF a$=CHR$(30) THEN teraz=1:WINDOW OUTPUT 3:GET(0,0)-(15,31),array:WINDOW OUTPUT 2
+IF a$=CHR$(31) THEN teraz=2:WINDOW OUTPUT 3:GET(112,0)-(127,31),array:WINDOW OUTPUT 2
+WEND
+cast=som+1
+LOCATE 27,1:PRINT x;y,teraz;cast
+RETURN
+
+teleport:GOSUB loadfile
+ter=som
+LOCATE 26,1:PRINT "CAST Z TELE":SLEEP:SLEEP:GOSUB loadfile
+WINDOW OUTPUT 3:GET(0,0)-(15,31),array:WINDOW OUTPUT 2
+tele(ter,0)=som
+test
+WHILE MOUSE(0)=0:mx=MOUSE(1)/16:my=MOUSE(2)/16
+PUT(mx*16,my*16),array:PUT(mx*16,my*16),array
+WEND
+tele(ter,1)=mx:tele(ter,2)=my
+RETURN
+
+SUB test STATIC:WHILE MOUSE(0)<>0:WEND
+END SUB
+
+duchovia:
+WHILE a$<>CHR$(27)
+a$=INKEY$
+IF a$="" THEN GOSUB loadfile
+IF a$="‚" THEN
+FOR i=0 TO 2
+LOCATE 27,1:INPUT "TYP",num
+IF num>5 THEN num=5
+dd(som,i,0)=num
+ovia=duch(num)
+IF ovia>7 THEN my=64:ovia=ovia-8 ELSE my=32
+mx=ovia*96
+WINDOW OUTPUT 3:GET(mx,my)-(mx+15,my+31),array:WINDOW OUTPUT 2
+test
+WHILE MOUSE(0)=0:mx=MOUSE(1):my=MOUSE(2):PUT(mx,my),array:PUT(mx,my),array:WEND
+dd(som,i,1)=my:dd(som,i,2)=mx
+LOCATE 27,1:INPUT"ENER",dd(som,i,3)
+LOCATE 27,1:INPUT"CO S NEHO",dd(som,i,4)
+LOCATE 27,1:INPUT"TERAZ -16...16",dd(som,i,5)
+LOCATE 27,1:PRINT "MAX - X"
+test
+WHILE MOUSE(0)=0:mx=MOUSE(1):PUT(mx,my),array:PUT(mx,my),array:WEND
+dd(som,i,6)=mx
+test
+LOCATE 27,1:PRINT "MIN - X"
+WHILE MOUSE(0)=0:mx=MOUSE(1):PUT(mx,my),array:PUT(mx,my),array:WEND
+dd(som,i,7)=mx
+NEXT
+ELSEIF a$="ƒ" THEN
+FOR i=0 TO 5:LOCATE 27,1:PRINT i;:INPUT "DUCH-",duch(i):NEXT
+END IF
+
+WEND
+a$=""
+RETURN
+
+sjvz:CLS
+LOCATE 1,1:PRINT "  S  J  V  Z  "
+FOR i=0 TO 9:PRINT i+1;:INPUT "",sjvz(i,0),sjvz(i,1),sjvz(i,2),sjvz(i,3)
+NEXT
+RETURN
+
+
+loadfile:CLS
+LOCATE 27,1:INPUT "LAND 1-10",num:IF num>10 OR num<1 THEN loadfile
+som=num-1
+OPEN"i",1,lnam$(som)
+num=FNl2:FOR i=1 TO num:WINDOW OUTPUT FNl1:mx=FNl2:my=FNl2:GET(mx,my)-(mx+FNl1,my+FNl1),array:WINDOW OUTPUT 2:PUT(FNl2,FNl2),array:NEXT
+CLOSE
+RETURN
+
+lti:file&=xOpen&(SADD("obrazok"+CHR$(0)),1005):IF file&=0 THEN GameError
+FOR i=0 TO 2:long&=xread&(file&,bit&(0,i),57528&):NEXT:xClose& file&
+RETURN
+
+SUB f.1 STATIC
+PALETTE 0,0,0,0:PALETTE 1,.8,.8,.8:PALETTE 2,0,.5,0:PALETTE 3,.8,0,0:PALETTE 4,1,.5,.5:PALETTE 5,0,1,1:PALETTE 6,1,.8,0:PALETTE 7,.26,.06,0
+END SUB
+
+miesto:a$="":WHILE a$<>CHR$(27):a$=INKEY$
+dum=MOUSE(0):a=INT(MOUSE(1)/16)*16:b=INT(MOUSE(2)/16)*16
+CALL setdrmd&(WINDOW(8),3):LINE(a,b)-STEP(15,15),,bf:LINE(a,b)-STEP(15,15),,bf:setdrmd& WINDOW(8),1
+IF a>304 THEN a=304
+IF b>192 THEN b=192
+n=INT(a/16)+INT(b/16)*20+1
+
+IF dum=0 THEN
+LOCATE 27,1:PRINT n;"-";ASC(MID$(dat$(som),n,1))
+ELSE
+MID$(dat$(som),n,1)=CHR$(sel)
+LOCATE 27,1:PRINT n;"-";sel
+END IF
+IF UCASE$(a$)<>"" THEN IF ASC(UCASE$(a$))>64 THEN sel=ASC(UCASE$(a$))-65:LOCATE 28,1:PRINT sel
+WEND
+RETURN
+
+iste:WINDOW OUTPUT 3:GET(0,0)-(15,31),array:WINDOW OUTPUT 2:teraz=1
+WHILE MOUSE(0)=0:mx=INT(MOUSE(1)/16):my=INT(MOUSE(2)/16):n=mx+my*20
+PUT(mx*16,my*16),array:PUT(mx*16,my*16),array
+LOCATE 27,1:PRINT n
+WEND
+iste(som)=n
+LOCATE 27,1:PRINT n,teraz;cast
+RETURN
+
+loaddat:
+LOCATE 27,1:INPUT "Filename>",nam$
+IF nam$="" THEN loaddat
+OPEN"i",1,nam$
+
+x=ASC(INPUT$(1,1))
+y=ASC(INPUT$(1,1))
+teraz=ASC(INPUT$(1,1))
+cast=ASC(INPUT$(1,1))
+FOR i=0 TO 5:duch(i)=ASC(INPUT$(1,1)):NEXT
+
+FOR ii=0 TO 9
+  OPEN"o",2,"ram:"+lnam$(ii)
+  CLS
+  num=FNl2
+  PRINT #2,MKI$(num);
+  FOR i=1 TO num
+    wout=FNl1
+    WINDOW OUTPUT wout
+    PRINT #2,CHR$(wout);
+    mx=FNl2
+    my=FNl2
+    lx=FNl1
+    ly=FNl1
+    PRINT #2,MKI$(mx);MKI$(my);CHR$(lx);CHR$(ly);
+    GET(mx,my)-(mx+lx,my+ly),array
+    WINDOW OUTPUT 2
+    mx=FNl2
+    my=FNl2
+    PRINT #2,MKI$(mx);MKI$(my);
+    PUT(mx,my),array
+    NEXT
+  CLOSE 2
+NEXT
+
+FOR i=0 TO 9:dat$(i)=INPUT$(260,1):iste(i)=ASC(INPUT$(1,1))
+FOR ii=0 TO 3:sjvz(i,ii)=ASC(INPUT$(1,1)):NEXT
+FOR ii=0 TO 2:tele(i,ii)=ASC(INPUT$(1,1)):NEXT
+FOR ii=0 TO 2:FOR iii=0 TO 7:dd(i,ii,iii)=CVI(INPUT$(2,1)):NEXT:NEXT
+NEXT
+CLOSE
+RETURN
+
+savefile:
+LOCATE 27,1:INPUT "Filename>",nam$
+IF nam$="" THEN savefile
+OPEN"o",11,nam$
+
+PRINT #11,CHR$(x);CHR$(y);CHR$(teraz);CHR$(cast);
+FOR i=0 TO 5:PRINT #11,CHR$(duch(i));:NEXT
+FOR i=0 TO 9
+OPEN"i",1,lnam$(i)
+PRINT #11,INPUT$(LOF(1),1);
+CLOSE 1
+NEXT
+FOR i=0 TO 9:PRINT #11,dat$(i);CHR$(iste(i));
+FOR ii=0 TO 3:PRINT #11,CHR$(sjvz(i,ii));:NEXT
+FOR ii=0 TO 2:PRINT #11,CHR$(tele(i,ii));:NEXT
+FOR ii=0 TO 2:FOR iii=0 TO 7:PRINT #11,MKI$(dd(i,ii,iii));:NEXT:NEXT
+NEXT
+CLOSE
+RETURN
+
