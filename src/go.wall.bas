@@ -1,0 +1,9 @@
+> PROCEDURE go.wall !a wall appears in front of Palko
+$P<
+IF teraz&=1
+SUB x&,3
+ELSE
+ADD x&,3
+ENDIF
+RETURN
+
