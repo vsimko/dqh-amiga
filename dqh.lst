@@ -1,0 +1,1842 @@
+DATA 40000,"viliam >imko",30000,"martina >imkov=",20000,"ivan perinaj",10000,"martin perinaj",5000,"palko kincel",3000,"du>a buocov=",2000,"imro drgo@",1000,"martin kviatkovsk~",500,"toma> jech",100,"Devil"
+DATA GSTART,FLATER,CVIATE,NALAVO,TUNAKK,VYASAM,UJOAJE,JOZOMA,AHOJTY,VEDJEA,SOMONA,STUDNA,TRAVIA,TERCIA,PRETOT,VALACH
+ON ERROR GOSUB gameerror
+toplevel&=6
+DIM bit%(1,2),obrmem%(9,2),palko$(49),duch$(35),miesto%(9),dd&(2,7),sjvz&(3),tele&(2),vec$(11),mm$(9),sco%(9),code$(15)
+DEFFN l1=ASC(INPUT$(1,#1))
+DEFFN l2=WORD(CVI(INPUT$(2,#1)))
+scr_win
+font(wrp%(0),"moj",16,0)
+DISPLAY OFF
+f.0
+~SetRast(win%(0),0)
+BYTE{20307}=64
+~Forbid()
+FOR i&=0 TO 9
+  FOR ii&=0 TO 2
+    obrmem%(i&,ii&)=AllocMem(8480,65537)
+    EXIT IF obrmem%(i&,ii&)<=0
+  NEXT ii&
+  EXIT IF obrmem%(i&,ii&-1)<=0
+NEXT i&
+IF i&<=2
+  gameerror
+ENDIF
+miesto%=AllocMem(300,65537)
+ADD miesto%,20
+IF miesto%<=0
+  gameerror
+ENDIF
+FOR i&=0 TO 9
+  READ sco%(i&),mm$(i&)
+  miesto%(i&)=AllocMem(316,65537)
+  EXIT IF miesto%(i&)<=0
+NEXT i&
+IF i&<=9
+  gameerror
+ENDIF
+FOR i&=0 TO 15
+  READ code$(i&)
+NEXT i&
+file%=Open(@sadd("DEVIL:HiScores"),1005)
+IF file%>0
+  ~Close(file%)
+  OPEN "i",#1,"DEVIL:HiScores"
+  FOR i&=0 TO 9
+    INPUT #1,sco%(i&),mm$(i&)
+  NEXT i&
+  CLOSE #1
+ENDIF
+FOR i&=0 TO 9
+  mm$(i&)=mm$(i&)+STRING$(18,32)
+  mm$(i&)=LEFT$(mm$(i&),18)
+NEXT i&
+file%=Open(@sadd("DEVIL:Obrazok"),1005)
+IF file%=0
+  gameerror
+ENDIF
+FOR i&=0 TO 2
+  long%=Read(file%,bit%(1,i&),57528)
+NEXT i&
+~Close(file%)
+DISPLAY ON
+RASTPORT wrp%(1)
+SCROLL -4,-2,0,0,815,563
+GET 0,513,143,559,aaa$
+RASTPORT wrp%(0)
+~SetRast(win%(0),0)
+f.1
+PUT 80,74,aaa$
+~Delay(40)
+odid
+~SetRast(win%(0),0)
+CLR aaa$
+pis(120,90,"PRESENT",3)
+~Delay(40)
+odid
+~SetRast(win%(0),0)
+RASTPORT wrp%(1)
+GET 144,512,207,543,aaa$
+RASTPORT wrp%(0)
+PUT 120,74,aaa$
+~Delay(40)
+odid
+~SetRast(win%(0),0)
+CLR aaa$
+RASTPORT wrp%(1)
+FOR i&=0 TO 49
+  GET i&*16,0,i&*16+15,31,palko$(i&)
+NEXT i&
+FOR i&=0 TO 11
+  GET i&*16,384,i&*16+15,399,vec$(i&)
+NEXT i&
+RASTPORT wrp%(0)
+~Permit()
+~CloseWorkBench()
+GOTO start
+startgame:
+f.1
+ink$=CHR$(27)
+newlevel
+'
+DO
+  ink$=INKEY$
+  WHILE ink$=""
+    ink$=INKEY$
+    stx&=@joyx
+    sty&=@joyy
+    IF zivot&<=0
+      f.0
+      SELECT navrat&
+      CASE 0
+        hof
+        GOTO start
+      CASE 1
+        GOTO start
+      CASE 2
+        vyhra
+        GOTO start
+      ENDSELECT
+    ENDIF
+    '
+    IF STRIG(3)=TRUE
+      SELECT teraz&
+      CASE 1
+        FOR i&=17 TO 19
+          ~Delay(1)
+          PUT x&,y&,palko$(i&)
+          tim
+        NEXT i&
+        m%=miesto%+INT(x&/16+1.4)+INT(y&/16+1.2)*20
+        zly&=BYTE{m%}-15
+        IF zly&>-1
+          likv
+        ENDIF
+        PUT x&,y&,palko$(0)
+      CASE 2
+        FOR i&=20 TO 22
+          ~Delay(1)
+          PUT x&,y&,palko$(i&)
+          tim
+        NEXT i&
+        m%=miesto%+INT(x&/16-0.4)+INT(y&/16+1.2)*20
+        zly&=BYTE{m%}-15
+        IF zly&>-1
+          likv
+        ENDIF
+        PUT x&,y&,palko$(7)
+      ENDSELECT
+    ENDIF
+    ON sty&+2 GOSUB skok,nic,laser
+    ON teraz& GOSUB pad.p,pad.l
+    stx&=stx&*teraz&+3
+    ON stx& GOSUB lavo,ot.l,nic,pravo,ot.p
+    IF poh&=0
+      CLR obr&
+      PUT x&,y&,palko$(teraz&*7-7)
+    ENDIF
+    CLR poh&
+    tim
+  WEND
+  IF ink$=" "
+    makebedna
+  ELSE IF ink$=CHR$(27)
+    CLR zivot&
+    zabp
+    GOTO start
+  ELSE IF MID$(ink$,2,1)=CHR$(63)
+    gamestatus
+  ENDIF
+LOOP
+final:
+FOR i&=0 TO 280
+  BYTE{m%+i&}=6
+NEXT i&
+FOR i&=0 TO 2
+  BMOVE bit%(0,i&),obrmem%(c&,i&),8480
+NEXT i&
+win(52,12,268,222,9)
+vyhra
+start:
+f.0
+~SetRast(win%(0),0)
+file%=Open(@sadd("DEVIL:dev.obr"),1005)
+IF file%=0
+  gameerror
+ENDIF
+FOR i&=0 TO 2
+  long%=Read(file%,bit%(0,i&),8480)
+NEXT i&
+~Close(file%)
+file%=Open(@sadd("DEVIL:text"),1005)
+IF file%=0
+  gameerror
+ELSE
+  ~Close(file%)
+ENDIF
+FOR i&=0 TO 2
+  BMOVE bit%(0,i&),obrmem%(0,i&),8480
+NEXT i&
+f.4
+CLR level&,cast&,x&,y&,teraz&,body%,laser&,bedna&,stx&,key&,navrat&
+speed&=3
+cas&=1
+zivot&=6
+FOR i&=0 TO 300
+  ~Delay(1)
+  IF STRIG(3)=TRUE
+    i&=400
+    stx&=1
+  ENDIF
+NEXT i&
+IF stx&=0
+  devilinfo
+ENDIF
+1:
+COLOR 0
+PBOX 64,62,246,160
+COLOR 4
+BOX 63,61,249,163
+COLOR 3
+BOX 64,62,248,162
+COLOR 5
+BOX 65,63,247,161
+pis(80,78," START  GAME.",7)
+pis(80,94,"   PRACTISE",7)
+pis(80,110,"   PASSWORD",7)
+pis(80,126,"   OPTIONS..",7)
+pis(80,142,"     INFO",7)
+pis(80,158," QUIT  GAME !",7)
+x&=70
+y&=64
+GET x&,y&,x&+15,y&+15,array$
+WHILE STRIG(3)=TRUE
+WEND
+WHILE STRIG(3)=FALSE
+  stx&=@joyy
+  REPEAT
+    IF stx&=-1 AND y&<>64
+      GET x&,y&-16,x&+15,y&-1,aaa$
+      FOR i&=0 TO 15
+        PUT x&,y&,vec$(9)
+        DEC y&
+      NEXT i&
+      PUT x&,y&+16,array$
+      SWAP aaa$,array$
+      CLR aaa$
+    ELSE IF stx&=1 AND y&<>144
+      GET x&,y&+16,x&+15,y&+31,aaa$
+      FOR i&=0 TO 15
+        PUT x&,y&,vec$(9)
+        INC y&
+      NEXT i&
+      PUT x&,y&-16,array$
+      SWAP aaa$,array$
+      CLR aaa$
+    ENDIF
+  UNTIL @joyy=0
+  PUT x&,y&,vec$(9)
+  ~Delay(4)
+  PUT x&,y&,vec$(10)
+  ~Delay(3)
+WEND
+~Delay(3)
+PUT x&,y&,array$
+SELECT y&
+CASE 64
+  GOTO startgame
+CASE 80
+  zivot&=25
+  laser&=25
+  navrat&=1
+  GOTO startgame
+CASE 96
+  WHILE INKEY$<>""
+  WEND
+  pis(80,78,"  ENTER  CODE   ",7)
+  FOR i&=6 TO 10
+    pis(80,i&*16-2,STRING$(20,32),7)
+  NEXT i&
+  CLR a$
+  FOR i&=0 TO 5
+    CLR ink$
+    WHILE ink$=""
+      ink$=INKEY$
+    WEND
+    a$=a$+UPPER$(ink$)
+    pis(112,110,a$,7)
+  NEXT i&
+  FOR i&=0 TO 15
+    EXIT IF a$=code$(i&)
+  NEXT i&
+  IF i&=16
+    i&=15
+  ENDIF
+  IF a$=code$(i&)
+    level&=i&
+    GOTO startgame
+  ENDIF
+  IF a$="TOTALT"
+    zivot&=25
+    body%=10000
+    laser&=25
+    bedna&=25
+  ENDIF
+  GOTO 1
+CASE 112
+  GOSUB options
+CASE 128
+  FOR i&=0 TO 2
+    BMOVE bit%(0,i&),obrmem%(0,i&),8480
+  NEXT i&
+  devilinfo
+CASE 144
+  f.0
+  gameerror
+ENDSELECT
+GOTO 1
+> FUNCTION sadd(a$)
+$F%
+a$=a$+CHR$(0)
+RETURN V:a$
+ENDFUNC
+> FUNCTION joyx
+$F%
+SELECT STICK(2)
+CASE 8,9,10
+RETURN 1
+CASE 4,5,6
+RETURN -1
+ENDSELECT
+RETURN FALSE
+ENDFUNC
+> FUNCTION joyy
+$F%
+SELECT STICK(2)
+CASE 1,5,9
+RETURN -1
+CASE 2,6,10
+RETURN 1
+ENDSELECT
+RETURN FALSE
+ENDFUNC
+> FUNCTION screen(w%,h%)
+$F%
+INLINE ns%,32
+CARD{ns%+4}=w%   ! W
+CARD{ns%+6}=h%   ! H
+CARD{ns%+8}=3    ! Depth
+'  CARD{ns%}=0      ! X
+'  CARD{ns%+2}=0    ! Y
+'
+'  BYTE{ns%+10}=0   ! Fg pen
+'  BYTE{ns%+11}=0   ! Bg pen
+'  CARD{ns%+12}=0   ! Typ
+'  CARD{ns%+14}=0   ! 0?
+'  LONG{ns%+16}=0   ! 0?
+'  LONG{ns%+20}=0   ! Title
+'  LONG{ns%+24}=0   ! 0?
+'  LONG{ns%=28}=0   ! 0?
+RETURN OpenScreen(ns%)
+ENDFUNC
+> FUNCTION window(scr%,w%,h%,flags%)
+$F%
+INLINE nw%,48
+CARD{nw%+4}=w%      ! W
+CARD{nw%+6}=h%      ! H
+LONG{nw%+14}=flags% ! FLAGS
+LONG{nw%+30}=scr%   ! Screen
+CARD{nw%+38}=w%     ! MinX
+CARD{nw%+40}=h%     ! MinY
+CARD{nw%+42}=w%     ! MaxX
+CARD{nw%+44}=h%     ! MaxY
+CARD{nw%+46}=&HF    ! typ ? &HF
+'
+'  CARD{nw%}=0         ! X
+'  CARD{nw%+2}=0       ! Y
+'  BYTE{nw%+8}=0       ! Fg pen
+'  BYTE{nw%+9}=0       ! Bg pen
+'  LONG{nw%+10}=0      ! IDCMP
+'  LONG{nw%+18}=0      ! 0?
+'  LONG{nw%+22}=0      ! 0?
+'  LONG{nw%+26}=0      ! Title
+'  LONG{nw%+34}=0      ! Bitmap
+'
+RETURN 0
+' RETURN OpenWindow(nw%)
+ENDFUNC
+> PROCEDURE scr_win
+$P<
+LOCAL i&
+DIM scr%(1),win%(1),wrp%(1),srp%(1)
+scr%(1)=@screen(816,564)
+srp%(1)=scr%(1)+84
+RASTPORT srp%(1)
+f.0
+win%(1)=@window(scr%(0),816,564,&H30840) !-3472
+wrp%(1)={win%(1)+50}
+scr%(0)=@screen(320,212)
+srp%(0)=scr%(0)+84
+RASTPORT srp%(0)
+f.1
+win%(0)=@window(scr%(0),320,212,&H31840) !-1424
+wrp%(0)={win%(0)+50}
+FOR i&=0 TO 2
+bit%(0,i&)={{scr%(0)+88}+8+i&*4}
+bit%(1,i&)={{scr%(1)+88}+8+i&*4}
+NEXT i&
+RETURN
+> PROCEDURE odid
+$P<
+FOR i&=72 TO 244
+SCROLL 0,-5,72,0,i&,200
+SCROLL 0,5,i&+8,0,i&+15,200
+NEXT i&
+RETURN
+> PROCEDURE f.0
+$P<
+LOCAL i&
+FOR i&=0 TO 7
+SETCOLOR i&,0
+NEXT i&
+RETURN
+> PROCEDURE f.1
+$P<
+SETCOLOR 0,0
+SETCOLOR 1,&HFFF
+SETCOLOR 2,&H80
+SETCOLOR 3,&HB00
+SETCOLOR 4,&HF88
+SETCOLOR 5,&HFF
+SETCOLOR 6,&HFB0
+SETCOLOR 7,&H530
+RETURN
+> PROCEDURE f.2
+$P<
+LOCAL z
+FOR z=30 TO 1 STEP -0.5
+SETCOLOR 1,11/(z*2),11/(z*2),11/(z*2)
+SETCOLOR 2,0,8/z,0
+SETCOLOR 3,11/z,0,0
+SETCOLOR 4,15/z,8/z,8/z
+SETCOLOR 5,0,15/z,15/z
+SETCOLOR 6,15/z,11/z,0
+SETCOLOR 7,5/z,3/z,0
+NEXT z
+f.1
+RETURN
+> PROCEDURE f.3
+$P<
+LOCAL n
+FOR n=1 TO 5 STEP 0.2
+SETCOLOR 1,11/(n*2),11/(n*2),11/(n*2)
+SETCOLOR 2,0,8/n,0
+SETCOLOR 3,11/n,0,0
+SETCOLOR 4,15/n,8/n,8/n
+SETCOLOR 5,0,15/n,15/n
+SETCOLOR 6,15/n,11/n,0
+SETCOLOR 7,5/n,3/n,0
+NEXT n
+f.0
+RETURN
+> PROCEDURE f.4
+$P<
+SETCOLOR 1,10,10,10
+SETCOLOR 2,3,2,1
+SETCOLOR 3,6,6,5
+SETCOLOR 4,6,5,4
+SETCOLOR 5,6,6,6
+SETCOLOR 6,2,1,0
+SETCOLOR 7,15,0,0
+RETURN
+> PROCEDURE setstyle(mask&)
+$P<
+~SetSoftStyle(wrp&(0),mask&,AskSoftStyle(wrp%(0)))
+RETURN
+> PROCEDURE win(x1,y1,x2,y2,fast&)
+$P<
+LOCAL f&,sx,sy,stx,sty,i&
+x1=x1
+x2=x2
+y1=y1
+y2=y2
+f&=fast&-1
+sx=(x2-x1)/2+x1
+sy=(y2-y1)/2+y1
+stx=(sx-x1)/f&
+sty=(sy-y1)/f&
+x1=sx
+x2=sx
+y1=sy
+y2=sy
+FOR i&=1 TO f&
+x1=x1-stx
+x2=x2+stx
+y1=y1-sty
+y2=y2+sty
+COLOR 6
+BOX x1-2,y1-2,x2+2,y2+2
+COLOR 7
+BOX x1-1,y1-1,x2+2,y2+2
+COLOR 6
+BOX x1-1,y1-1,x2+1,y2+1
+COLOR 7
+BOX x1,y1,x2+1,y2+1
+COLOR 1
+PBOX x1,y1,x2,y2
+NEXT i&
+RETURN
+> PROCEDURE testxy
+$P<
+LOCAL t%
+CLR num&
+t%=miesto%+INT(x&/16)+INT(y&/16)*20
+IF BYTE{t%+1}<>0 OR BYTE{t%+21}<>0
+num&=1
+IF BYTE{t%-1}=0 OR BYTE{t%+19}=0
+CLR num&
+ENDIF
+ENDIF
+IF BYTE{t%-1}<>0 OR BYTE{t%+19}<>0
+num&=1
+IF BYTE{t%+1}=0 OR BYTE{t%+21}=0
+CLR num&
+ENDIF
+ENDIF
+IF BYTE{t%}<>0 OR BYTE{t%+20}<>0
+num&=1
+ENDIF
+IF num&=1
+y&=176
+WHILE BYTE{t%}<>0 OR BYTE{t%+20}<>0 OR BYTE{t%+1}<>0 OR BYTE{t%+21}<>0 OR BYTE{t%+40}<>1
+SUB y&,16
+IF y&<0
+y&=176
+ADD x&,16
+IF x&>320
+CLR x&
+ENDIF
+ENDIF
+t%=miesto%+INT(x&/16)+INT(y&/16)*20
+WEND
+ENDIF
+RETURN
+> PROCEDURE newlevel
+$P>
+LOCAL dy&,i&,ii&,pxd&
+IF ink$<>CHR$(27)
+f.3
+ELSE
+CLR ink$
+ENDIF
+DISPLAY OFF
+INC level&
+IF level&>toplevel&
+CLR zivot&
+f.0
+DISPLAY ON
+navrat&=2
+GOTO exit
+ENDIF
+nam$="DEVIL:levels/level "+STR$(level&)
+IF level&<>1 AND navrat&=1
+CLR zivot&
+f.0
+DISPLAY ON
+GOTO exit
+ENDIF
+file%=Open(@sadd(nam$),1005)
+IF file%=0
+gameerror
+ENDIF
+~Close(file%)
+OPEN "i",#1,nam$
+x&=(FN l1)*16
+y&=(FN l1)*16
+teraz&=FN l1
+cast&=FN l1
+c&=cast&-1
+RASTPORT wrp%(1)
+FOR i&=0 TO 5
+typ&=@l1
+IF typ&>7
+dy&=64
+SUB typ&,8
+ELSE
+dy&=32
+ENDIF
+FOR ii&=0 TO 5
+pxd&=(typ&*96)+(ii&*16)
+GET pxd&,dy&,pxd&+15,dy&+31,duch$(i&*6+ii&)
+NEXT ii&
+NEXT i&
+RASTPORT wrp%(0)
+~SetRast(win%(0),0)
+FOR ii&=0 TO 9
+num&=FN l2
+FOR i&=1 TO num&
+RASTPORT wrp%((FN l1)-2)
+mx&=FN l2
+my&=FN l2
+GET mx&,my&,mx&+FN l1,my&+FN l1,array$
+RASTPORT wrp%(0)
+PUT FN l2,FN l2,array$,96
+NEXT i&
+FOR bit&=0 TO 2
+BMOVE bit%(0,bit&),obrmem%(ii&,bit&),8480
+NEXT bit&
+~SetRast(win%(0),0)
+NEXT ii&
+FOR i&=0 TO 9
+BMOVE @sadd(INPUT$(316,#1)),miesto%(i&),316
+NEXT i&
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+RASTPORT wrp%(0)
+CLR a$,num&
+tim
+PUT x&,y&,palko$(teraz&*7-7)
+tim
+CLOSE #1
+DISPLAY ON
+exit:
+f.2
+RETURN
+> PROCEDURE dalej
+$P>
+LOCAL num&,mem%,a$
+cc&=c&
+IF x&>300
+IF sjvz&(2)=0
+x&=300
+GOTO exit
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CLR x&
+cast&=sjvz&(2)
+GOTO dalejp
+ENDIF
+ENDIF
+IF x&<0
+IF sjvz&(3)=0
+CLR x&
+GOTO exit_dalej
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+x&=300
+cast&=sjvz&(3)
+GOTO dalejp
+ENDIF
+ENDIF
+IF y&>176
+IF sjvz&(1)=0
+y&=176
+GOTO exit_dalej
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CLR y&
+cast&=sjvz&(1)
+GOTO dalejp
+ENDIF
+ENDIF
+IF y&<0
+IF sjvz&(0)=0
+CLR y&
+GOTO exit_dalej
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+y&=176
+cast&=sjvz&(0)
+GOTO dalejp
+ENDIF
+ENDIF
+dalejp:
+c&=cast&-1
+IF cast&=11
+newlevel
+GOTO exit_dalej
+ENDIF
+BMOVE miesto%,miesto%(cc&),260
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
+NEXT i&
+CLR a$
+FOR i&=0 TO 3
+a$=a$+CHR$(sjvz&(i&))
+NEXT i&
+FOR i&=0 TO 2
+a$=a$+CHR$(tele&(i&))
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+a$=a$+MKI$(dd&(i&,ii&))
+NEXT ii&
+NEXT i&
+BMOVE V:a$,miesto%(cc&)+261,55
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+CLR a$,num&
+testxy
+exit_dalej:
+RETURN
+> PROCEDURE nic
+$P<
+RETURN
+> PROCEDURE pravo
+$P>
+ADD x&,3
+poh&=-1
+INC obr&
+IF obr&>6
+obr&=1
+ENDIF
+IF x&>300
+dalej
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
+ON BYTE{m%} GOSUB stena,stena,stena,stena,stena,stena,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB stena,stena,stena,stena,stena,stena,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+PUT x&,y&,palko$(obr&)
+RETURN
+> PROCEDURE lavo
+$P>
+SUB x&,3
+poh&=-1
+INC obr&
+IF obr&>6
+obr&=1
+ENDIF
+IF x&<0
+dalej
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16)*20
+ON BYTE{m%} GOSUB stena,stena,stena,stena,stena,stena,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB stena,stena,stena,stena,stena,stena,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+PUT x&,y&,palko$(obr&+7)
+RETURN
+> PROCEDURE stena
+$P<
+IF teraz&=1
+SUB x&,3
+ELSE
+ADD x&,3
+ENDIF
+RETURN
+> PROCEDURE ste.s
+$P<
+IF teraz&=1
+SUB x&,2
+ELSE
+ADD x&,2
+ENDIF
+RETURN
+> PROCEDURE ot.p
+$P>
+CLR obr&,poh&
+teraz&=1
+FOR i&=2 TO 0 STEP -1
+PUT x&,y&,palko$(i&+14)
+tim
+NEXT i&
+RETURN
+> PROCEDURE ot.l
+$P>
+CLR obr&,poh&
+teraz&=2
+FOR i&=0 TO 2 STEP 1
+PUT x&,y&,palko$(i&+14)
+tim
+NEXT i&
+RETURN
+> PROCEDURE skok
+$P>
+ON teraz& GOSUB skok.p,skok.l
+RETURN
+> PROCEDURE skok.p
+$P>
+teraz&=1
+PUT x&,y&,palko$(27)
+g=4
+WHILE poh&<20 AND @joyy=-1
+stx&=@joyx
+SUB y&,g
+SUB g,0.1
+INC poh&
+IF stx&=1
+ADD x&,2
+ELSE
+IF stx&<>0
+skok.l
+GOTO exit_s.p
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,nic,nic,nic
+m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+zabp
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}<7
+pad.p
+GOTO exit_s.p
+ENDIF
+ENDIF
+INC m%
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+zabp
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}<7
+pad.p
+GOTO exit_s.p
+ENDIF
+ENDIF
+PUT x&,y&,palko$(27)
+IF y&<0 OR x&>300
+dalej
+ENDIF
+tim
+WEND
+pad.p
+exit_s.p:
+RETURN
+> PROCEDURE skok.l
+$P>
+teraz&=2
+PUT x&,y&,palko$(28)
+g=4
+WHILE poh&<20 AND @joyy=-1
+stx&=@joyx
+SUB y&,g
+SUB g,0.1
+INC poh&
+IF stx&=-1
+SUB x&,2
+ELSE
+IF stx&<>0
+skok.p
+GOTO exit_s.l
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,nic,nic,nic
+m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+zabp
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}<7
+pad.l
+GOTO exit_s.l
+ENDIF
+ENDIF
+INC m%
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+zabp
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}<7
+pad.l
+GOTO exit_s.l
+ENDIF
+ENDIF
+PUT x&,y&,palko$(28)
+IF y&<0 OR x&<0
+dalej
+ENDIF
+tim
+WEND
+pad.l
+exit_s.l:
+RETURN
+> PROCEDURE pad.p
+$P>
+LOCAL statu&
+IF poh&=0
+m%=miesto%+INT((x&+7)/16)+INT(y&/16+2)*20
+statu&=BYTE{m%}
+IF statu&>0
+ON statu& GOSUB nic,nic,navaz,hpn,dvere,telep,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+GOTO exit_pad.p
+ENDIF
+IF BYTE{m%-19}=0 AND BYTE{m%-39}=0
+FOR i&=0 TO 3
+ADD x&,2
+PUT x&,y&,palko$(30)
+tim
+NEXT i&
+ELSE
+FOR i&=3 TO 0 STEP -1
+SUB x&,2
+PUT x&,y&,palko$(i&)
+COLOR 0
+PBOX x&+15,y&,x&+17,y&+31
+tim
+NEXT i&
+GOTO exit_pad.p
+ENDIF
+ELSE IF poh&>0
+PUT x&,y&,palko$(30)
+CLR poh&
+ENDIF
+teraz&=1
+WHILE 1
+stx&=@joyx
+ADD y&,g
+g=MIN((g+0.2),4)
+IF stx&=1
+ADD x&,2
+m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,nic,nic,nic
+ELSE
+IF stx&<>0
+SUB y&,4
+poh&=1
+pad.l
+GOTO exit_pad.p
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(0)
+stx&=@joyx
+GOTO exit_pad.p
+ENDIF
+IF BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}>11
+zabp
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(0)
+stx&=@joyx
+GOTO exit_pad.p
+ENDIF
+IF BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}>11
+zabp
+ENDIF
+ENDIF
+PUT x&,y&,palko$(30)
+IF y&>176 OR x&>300
+dalej
+ENDIF
+tim
+WEND
+exit_pad.p:
+g=3
+RETURN
+> PROCEDURE pad.l
+$P>
+LOCAL statu&
+IF poh&=0
+m%=miesto%+INT((x&+9)/16)+INT(y&/16+2)*20
+statu&=BYTE{m%}
+IF statu&>0
+ON statu& GOSUB nic,nic,navaz,hpn,dvere,telep,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+GOTO exit_pad.l
+ENDIF
+IF BYTE{m%-21}=0 AND BYTE{m%-41}=0
+FOR i&=0 TO 3
+SUB x&,2
+PUT x&,y&,palko$(31)
+tim
+NEXT i&
+ELSE
+FOR i&=10 TO 7 STEP -1
+ADD x&,2
+PUT x&,y&,palko$(i&)
+COLOR 0
+PBOX x&-2,y&,x&,y&+31
+tim
+NEXT i&
+GOTO exit_pad.l
+ENDIF
+ELSE IF poh&>0
+PUT x&,y&,palko$(31)
+CLR poh&
+ENDIF
+teraz&=2
+WHILE 1
+stx&=@joyx
+ADD y&,g
+g=MIN((g+0.2),4)
+IF stx&=-1
+SUB x&,2
+m%=miesto%+INT(x&/16)+INT(y&/16)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,zabp,zabp,zabp
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB ste.s,ste.s,ste.s,ste.s,ste.s,ste.s,trey,trey,trey,trey,trey,zabp,zabp,zabp,nic,nic,nic
+ELSE
+IF stx&<>0
+SUB y&,4
+poh&=1
+pad.p
+GOTO exit_pad.l
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(7)
+stx&=@joyx
+GOTO exit_pad.l
+ENDIF
+IF BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}>11
+zabp
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(7)
+stx&=@joyx
+GOTO exit_pad.l
+ENDIF
+IF BYTE{m%}<12
+trey
+ENDIF
+IF BYTE{m%}>11
+zabp
+ENDIF
+ENDIF
+PUT x&,y&,palko$(31)
+IF y&>176 OR x&<0
+dalej
+ENDIF
+tim
+WEND
+exit_pad.l:
+g=3
+RETURN
+> PROCEDURE laser
+$P<
+LOCAL aa&,to&
+IF laser&=0
+GOTO exit_laser
+ENDIF
+PUT x&,y&,palko$(teraz&*7-7)
+WHILE @joyy=1 AND STRIG(3)=FALSE
+~Delay(1)
+tim
+WEND
+IF STRIG(3)=TRUE
+DEC laser&
+IF teraz&=1
+FOR i&=23 TO 24
+PUT x&,y&,palko$(i&)
+~Delay(5)
+NEXT i&
+b&=y&+10
+FOR to&=INT(x&/16+1) TO 20
+EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+ADD a&,16
+NEXT to&
+a&=x&+20
+COLOR 6
+PCIRCLE a&,b&,2
+aa&=a&
+FOR a&=x&+20 TO to&*16 STEP 5
+COLOR 6
+PCIRCLE a&,b&,2
+COLOR 0
+PCIRCLE aa&,b&,2
+aa&=a&
+NEXT a&
+COLOR 0
+PCIRCLE aa&,b&,2
+FOR i&=0 TO 20
+LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
+NEXT i&
+f.1
+b&=INT(y&/16)*16
+m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+IF BYTE{m%}=2
+SUB m%,20
+a&=INT(a&/16)*16
+b&=INT(b&/16)*16-16
+WHILE BYTE{m%}=2
+SUB m%,20
+SUB b&,16
+WEND
+ADD m%,20
+ADD b&,16
+WHILE BYTE{m%}=2
+BYTE{m%}=0
+ADD m%,20
+ADD b&,16
+FOR ii&=6 TO 8
+PUT a&,b&,vec$(ii&)
+~Delay(1)
+NEXT ii&
+COLOR 0
+PBOX a&,b&,a&+15,b&+15
+WEND
+ELSE IF BYTE{m%}>14
+zly&=BYTE{m%}-15
+likv
+ENDIF
+ELSE
+FOR i&=25 TO 26
+PUT x&,y&,palko$(i&)
+~Delay(6)
+NEXT i&
+b&=y&+10
+FOR to&=INT(x&/16+1) DOWNTO 0
+EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+SUB a&,16
+NEXT to&
+a&=x&-4
+COLOR 6
+PCIRCLE a&,b&,2
+aa&=a&
+FOR a&=x&+-4 TO (to&+1)*16 STEP -5
+COLOR 6
+PCIRCLE a&,b&,2
+COLOR 0
+PCIRCLE aa&,b&,2
+aa&=a&
+NEXT a&
+COLOR 0
+PCIRCLE aa&,b&,2
+FOR i&=0 TO 20
+LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
+NEXT i&
+f.1
+b&=INT(y&/16)*16
+m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+IF BYTE{m%}=2
+SUB m%,20
+a&=INT(a&/16)*16
+b&=INT(b&/16)*16-16
+WHILE BYTE{m%}=2
+SUB m%,20
+SUB b&,16
+WEND
+ADD m%,20
+ADD b&,16
+WHILE BYTE{m%}=2
+BYTE{m%}=0
+ADD m%,20
+ADD b&,16
+FOR ii&=6 TO 8
+PUT a&,b&,vec$(ii&)
+~Delay(1)
+NEXT ii&
+COLOR 0
+PBOX a&,b&,a&+15,b&+15
+WEND
+ELSE IF BYTE{m%}>14
+zly&=BYTE{m%}-15
+likv
+ENDIF
+ENDIF
+ENDIF
+PUT x&,y&,palko$(teraz&*7-7)
+exit_laser:
+RETURN
+> PROCEDURE tim
+$P>
+~Delay(1)
+cas&=-cas&
+IF cas&=1
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+IF BYTE{m%}>14
+zabp
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+IF BYTE{m%}>14
+zabp
+ENDIF
+GOTO exit_tim
+ENDIF
+INC zpoh&
+IF zpoh&>2
+zpoh&=0
+ENDIF
+FOR zly&=0 TO 2
+ON SGN(dd&(zly&,5))+2 GOSUB pd.l,nic,pd.p
+NEXT zly&
+exit_tim:
+RETURN
+> PROCEDURE pd.p
+$P>
+IF dd&(zly&,3)<>255
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+BYTE{m%-20}=0
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ENDIF
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=zly&+15
+ELSE
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ELSE
+PUT dd(zly,2),dd(zly,1),duch$(zpoh+dd(zly,0)*6)
+ENDIF
+ENDIF
+RETURN
+> PROCEDURE pd.l
+$P>
+IF dd&(zly&,3)<>255
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+BYTE{m%-20}=0
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ENDIF
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=zly&+15
+ELSE
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ENDIF
+ENDIF
+RETURN
+> PROCEDURE zabp
+$P>
+num&=BYTE{m%}
+SELECT num&
+CASE 12
+FOR i&=32 TO 35
+PUT x&,y&,palko$(i&)
+~Delay(3)
+NEXT i&
+~Delay(10)
+FOR i&=35 TO 39
+PUT x&,y&,palko$(i&)
+~Delay(4)
+NEXT i&
+~Delay(50)
+CASE 13
+y&=INT(y&/16)*16
+FOR i&=40 TO 43
+~Delay(4)
+PUT x&,y&,palko$(i&)
+NEXT i&
+FOR i&=0 TO 16
+SCROLL 0,-1,x&,y&,x&+15,y&+31
+~Delay(3)
+NEXT i&
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CASE 14
+COLOR 0
+PBOX x&,y&,x&+15,y&+5
+GET x&,y&+32,x&+15,y&+63,array$
+PUT x&,y&,palko$(44)
+FOR i&=44 TO 46
+ADD y&,5
+PUT x&,y&,palko$(i&)
+~Delay(4)
+NEXT i&
+~Delay(50)
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+PUT x&,y&+17,array$
+CASE 15,16,17
+FOR i&=0 TO 7
+PUT x&,y&,palko$(15)
+~Delay(5)
+PUT x&,y&,palko$(29)
+~Delay(5)
+NEXT i&
+~Delay(10)
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+ENDSELECT
+f.3
+DEC zivot&
+x&=isx&
+y&=isy&
+IF zivot&>0
+testxy
+PUT x&,y&,palko$(teraz&*7-7)
+f.2
+ENDIF
+RETURN
+> PROCEDURE telep
+$P<
+LOCAL dd%
+cc&=c&
+PUT x&,y&,palko$(15)
+~Delay(3)
+FOR i&=47 TO 49
+PUT x&,y&,palko$(i&)
+~Delay(3)
+tim
+NEXT i&
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+c&=tele&(0)
+cast&=c&+1
+x&=tele&(1)*16
+y&=tele&(2)*16
+IF cast&=11
+newlevel
+ENDIF
+IF cc&<>c&
+f.3
+ENDIF
+BMOVE miesto%,miesto%(cc&),260
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
+NEXT i&
+CLR a$
+FOR i&=0 TO 3
+a$=a$+CHR$(sjvz&(i&))
+NEXT i&
+FOR i&=0 TO 2
+a$=a$+CHR$(tele&(i&))
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+a$=a$+MKI$(dd&(i&,ii&))
+NEXT ii&
+NEXT i&
+BMOVE @sadd(a$),(miesto%(cc&)+261),55
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+CLR num&,a$
+IF cc&<>c&
+f.2
+ENDIF
+testxy
+FOR i&=49 TO 47 STEP -1
+PUT x&,y&,palko$(i&)
+~Delay(5)
+tim
+NEXT i&
+PUT x&,y&,palko$(15)
+~Delay(5)
+PUT x&,y&,palko$(teraz&*7-7)
+RETURN
+> PROCEDURE navaz
+$P<
+IF obr&<>0
+SCROLL 0,2,x&-3,y&,x&+18,y&+47
+SCROLL 0,-2,x&-3,y&,x&+18,y&+47
+tim
+ELSE
+FOR i&=0 TO 3
+tim
+SCROLL 0,1,x&,y&,x&+15,y&+47
+NEXT i&
+FOR i&=0 TO 3
+tim
+SCROLL 0,-1,x&,y&,x&+15,y&+47
+NEXT i&
+PUT x&,y&,palko$(teraz&*7-7)
+ENDIF
+RETURN
+> PROCEDURE hpn
+$P<
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}=4
+BYTE{m%}=0
+a&=INT(x&/16)*16
+b&=INT(y&/16+2)*16
+tim
+COLOR 0
+PBOX a&,b&,a&+15,b&+15
+tim
+ENDIF
+RETURN
+> PROCEDURE trey
+$P<
+num&=BYTE{m%}
+my&=INT((m%-miesto%)/20)
+mx&=(m%-miesto%)-my&*20
+MUL mx&,16
+MUL my&,16
+COLOR 0
+PBOX mx&,my&,mx&+15,my&+15
+SELECT num&
+CASE 7
+INC zivot&
+CASE 8
+INC laser&
+CASE 9
+INC bedna&
+CASE 10
+INC key&
+IF cast&=10 AND level&=topleve&
+finalgot&=1
+ENDIF
+CASE 11
+ADD body%,100
+ENDSELECT
+BYTE{m%}=0
+RETURN
+> PROCEDURE likv
+$P<
+DEC dd&(zly&,3)
+IF dd&(zly&,3)=0
+PUT dd&(zly&,2),dd&(zly&,1),palko$(29)
+~Delay(5)
+COLOR 0
+PBOX dd&(zly&,2),dd&(zly&,1),dd&(zly&,2)+15,dd&(zly&,1)+31
+ADD body%,dd&(zly&,4)
+dd&(zly&,5)=0
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+ENDIF
+tim
+RETURN
+> PROCEDURE dvere
+$P<
+IF key&>0
+BYTE{m%}=1
+DEC key&
+IF BYTE{m%-21}=1
+BYTE{m%-21}=0
+BYTE{m%-22}=0
+BYTE{m%-41}=0
+BYTE{m%-42}=0
+BYTE{m%-61}=0
+BYTE{m%-62}=0
+a&=(INT(x&/16)-2)*16
+b&=(INT(y&/16)-1)*16
+FOR i&=0 TO 47
+SCROLL 0,-1,a&,b&,a&+31,b&+47
+NEXT i&
+ELSE IF BYTE{m%-19}=1
+BYTE{m%-19}=0
+BYTE{m%-18}=0
+BYTE{m%-39}=0
+BYTE{m%-38}=0
+BYTE{m%-59}=0
+BYTE{m%-58}=0
+a&=(INT(x&/16)+2)*16
+b&=(INT(y&/16)-1)*16
+FOR i&=0 TO 47
+SCROLL 0,-1,a&,b&,a&+31,b&+47
+NEXT i&
+ENDIF
+ENDIF
+RETURN
+> PROCEDURE vyhra
+$P<
+f.0
+~SetRast(win%(0),0)
+file%=Open(@sadd("DEVIL:vyh.obr"),1005)
+IF file%=0
+gameerror
+ENDIF
+FOR i&=0 TO 2
+long%=Read(file%,bit%(0,i&),8480)
+NEXT i&
+~Close(file%)
+COLOR 0
+BOX 0,0,319,211
+f.4
+~Delay(100)
+FOR i&=30 TO -16 STEP -2
+PUT 90,i&,vec$(11)
+~Delay(1)
+NEXT i&
+~Delay(100)
+hof
+RETURN
+> PROCEDURE hof
+$P<
+WHILE INKEY$<>""
+WEND
+f.0
+~SetRast(win%(0),0)
+IF body%>sco%(9)
+f.2
+pis(50,16,"ENTER YOUR NAME",6)
+CLR a$,ink$
+WHILE ink$<>CHR$(13)
+ink$=INKEY$
+IF ink$<>CHR$(13) AND ink$<>CHR$(8) AND ink$<>"" AND LEN(a$)<16
+a$=a$+ink$
+pis(48,40,a$,6)
+ELSE IF ink$=CHR$(8) AND ink$<>"" AND LEN(a$)>0
+a$=LEFT$(a$,LEN(a$)-1)
+pis(48,40,a$+STRING$(5,32),6)
+ENDIF
+WEND
+a$=LEFT$(a$+STRING$(18,32),18)
+FOR i&=0 TO 9
+EXIT IF sco%(i&)<=body%
+NEXT i&
+FOR ii&=9 TO i&+1 STEP -1
+sco%(ii&)=sco%(ii&-1)
+mm$(ii&)=mm$(ii&-1)
+NEXT ii&
+mm$(i&)=a$
+sco%(i&)=body%
+~SetRast(win%(0),0)
+WHILE INKEY$<>"" OR MOUSEK<>0
+WEND
+FOR i&=0 TO 9
+pis(0,(i&+1)*16,STR$(i&+1),6)
+pis(32,(i&+1)*16,mm$(i&),6)
+pis(220,(i&+1)*16,STR$(sco%(i&)),6)
+NEXT i&
+i&=150
+ii&=-1
+pis(0,192,"press fire to continue or",3)
+pis(0,208,"left mousebotton to save hiscores",3)
+WHILE STRIG(3)=0 AND INKEY$=""
+IF MOUSEK<>0
+OPEN "o",#1,"HiScores"
+FOR i&=0 TO 9
+WRITE #1,sco%(i&),mm$(i&)
+NEXT i&
+CLOSE #1
+WHILE MOUSEK<>0
+WEND
+~ScreenToFront(scr%(0))
+ENDIF
+ADD i&,ii&
+IF i&=150 OR i&=0
+ii&=-ii&
+ADD i&,ii&
+ENDIF
+SETCOLOR 6,15,i&/10,0
+~Delay(1)
+WEND
+ENDIF
+RETURN
+> PROCEDURE devilinfo
+$P<
+f.3
+CLR a$,num&,m%,stx&
+OPEN "i",#1,"DEVIL:text"
+INPUT #1,num&
+DIM a$(num&),aaa&(num&)
+FOR i&=0 TO num&
+INPUT #1,aaa&(i&),a$(i&)
+NEXT i&
+CLOSE #1
+~SetRast(win%(0),0)
+COLOR 1
+f.2
+WHILE stx&=0 AND INKEY$=""
+CLR stx&
+pis(0,208,a$(m%),aaa&(m%))
+INC m%
+IF m%>num&
+FOR i&=150 TO 0 STEP -1
+SETCOLOR 1,i&/10,i&/10,i&/10
+NEXT i&
+CLR m%
+~SetRast(win%(0),0)
+FOR i&=0 TO 9
+pis(0,(i&+1)*16,STR$(i&+1),6)
+pis(32,(i&+1)*16,mm$(i&),6)
+pis(220,(i&+1)*16,STR$(sco%(i&)),6)
+NEXT i&
+CLR stx&
+FOR i&=0 TO 4000
+~Delay(2)
+ADD stx&,ABS(STRIG(3))
+IF stx&>0
+i&=4000
+ENDIF
+NEXT i&
+~SetRast(win%(0),0)
+FOR i&=0 TO 150
+SETCOLOR 1,i&/10,i&/10,i&/10
+NEXT i&
+ENDIF
+del%=LEN(a$(ABS(m%-1)))*0.18
+FOR i&=0 TO 15
+SCROLL 0,-1,0,0,320,256
+~Delay(del%)
+ADD stx&,ABS(STRIG(3))
+NEXT i&
+WEND
+f.3
+ERASE a$(),aaa&()
+FOR i&=0 TO 2
+BMOVE obrmem%(0,i&),bit%(0,i&),8480
+NEXT i&
+f.4
+RETURN
+> PROCEDURE options
+$P<
+win(0,0,320,208,15)
+f.1
+WHILE STRIG(3)=TRUE
+WEND
+WHILE STRIG(3)=FALSE
+WEND
+f.3
+FOR i&=0 TO 2
+BMOVE obrmem%(0,i&),bit%(0,i&),8480
+NEXT i&
+f.4
+RETURN
+> PROCEDURE gameerror
+$P<
+BYTE{20307}=0
+~Permit()
+~OpenWorkBench()
+IF miesto%>1
+~FreeMem(miesto%-20,300)
+ENDIF
+~CloseWindow(win%(0))
+~CloseWindow(win%(1))
+~CloseScreen(scr%(0))
+~CloseScreen(scr%(1))
+FOR i&=0 TO 9
+FOR ii&=0 TO 2
+IF obrmem%(i&,ii&)>0
+~FreeMem(obrmem%(i&,ii&),8480)
+ENDIF
+NEXT ii&
+IF miesto%(i&)>1
+~FreeMem(miesto%(i&),316)
+ENDIF
+NEXT i&
+EDIT
+RETURN
+> PROCEDURE gamestatus
+$P<
+f.3
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(c&,i&),8480
+NEXT i&
+~SetRast(win%(0),0)
+COLOR 7
+BOX 0,0,319,211
+COLOR 3
+BOX 1,1,318,210
+COLOR 6
+BOX 2,2,317,209
+f.2
+COLOR 3
+FOR i&=0 TO 20
+LINE 220-i&*5,220-i&*5,320,220-i&*5
+LINE 220+i&*5,60+i&*5,220+i&*5,220
+NEXT i&
+pis(70,18,"-GAME STATUS.-",5)
+pis(4,47,"your score - "+STR$(body%),4)
+pis(4,63,"<ivoty:",3)
+pis(4,95,"laser:",3)
+pis(4,127,"fixa[n= hmota:",3)
+pis(4,159,"k;^[e:",3)
+~SetDrMd(wrp%(0),0)
+pis(222,180,code$(level&-1),6)
+~SetDrMd(wrp%(0),1)
+FOR i&=0 TO zivot&-1
+PUT i&*8+4,64,vec$(0)
+NEXT i&
+FOR i&=0 TO laser&-1
+PUT i&*8+4,96,vec$(1)
+NEXT i&
+FOR i&=0 TO bedna&-1
+PUT i&*8+4,128,vec$(2)
+NEXT i&
+FOR i&=0 TO key&-1
+PUT i&*8+4,160,vec$(3)
+NEXT i&
+WHILE STRIG(3)=FALSE AND INKEY$=""
+WEND
+WHILE INKEY$<>""
+WEND
+CLR ink$
+f.3
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+f.2
+RETURN
+> PROCEDURE makebedna
+$P<
+m%=miesto%+INT(x&/16)+INT(y&/16-1)*20
+IF x&<0
+x&=0
+ENDIF
+IF bedna&<>0 AND BYTE{m%}=0 AND BYTE{m%+1}=0 AND y&>8
+DEC bedna&
+FOR i&=0 TO 15
+SCROLL 0,-1,x&,y&-15,x&+15,y&+31
+NEXT i&
+SUB y&,16
+PUT INT(x&/16)*16,INT(y&/16+2)*16,vec$(5)
+PUT INT(x&/16+1)*16,INT(y&/16+2)*16,vec$(5)
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+BYTE{m%}=1
+BYTE{m%+1}=1
+ENDIF
+RETURN
+> PROCEDURE font(rp%,font$,height%,flags%)
+$P<
+LOCAL libname$,diskfontbase%,font%
+libname$="diskfont.library"+CHR$(0)
+diskfontbase%=OpenLibrary(V:libname$,0)
+textattr%=AllocMem(100,65537)
+font$=font$+".font"+CHR$(0)
+{textattr%}=V:font$
+CARD{textattr%+4}=height%
+BYTE{textattr%+6}=0
+BYTE{textattr%+7}=flags%
+font%=OpenDiskFont(textattr%)
+~SetFont(rp%,font%)
+~CloseLibrary(diskfontbase%)
+~CloseFont(font%)
+~FreeMem(textattr%,100)
+RETURN
+> PROCEDURE pis(x%,y%,text$,a%)
+$P<
+~SetAPen(wrp%(0),a%)
+~Move(wrp%(0),x%,y%)
+~Text(wrp%(0),V:text$,LEN(text$))
+RETURN
