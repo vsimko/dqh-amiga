@@ -104,18 +104,18 @@ PROCEDURE initgame
   DIM scr%(1),win%(1) !adresy screenov a okien
   DIM srp%(1),wrp%(1) !rast porty
   '
-  ' 0 = viditelny obraz
-  ' 1 = velky neviditelny obrazok
+  ' 0 = visible bitmap
+  ' 1 = the huge invisible bitmap with patterns
   '
   DEFFN l1=ASC(INPUT$(1,#1))       !nacita 1b
   DEFFN l2=WORD(CVI(INPUT$(2,#1))) !nacita 2b
   ' vytvorenie prostredia
   SETWPEN 0,0
   SETSPEN 0,0
-  OPENS 2,0,0,816,564,3,0      ! velky neviditelny
+  OPENS 2,0,0,816,564,3,0      ! invisible bitmap with patterns
   OPENW #2,0,0,816,564,0,-3472
   f.1
-  OPENS 1,0,0,320,212,3,0      ! viditelny obraz
+  OPENS 1,0,0,320,212,3,0      ! visible bitmap
   OPENW #1,0,0,320,212,0,67648
   CLEARW #1
   f.1
@@ -181,7 +181,6 @@ PROCEDURE initgame
     long%=Read(file%,bit%(1,i&),57528)
   NEXT i&
   ~Close(file%)
-  ' ~Execute(@sadd("run >NIL: <NIL: DEVIL:modules/devilsong"),0,0) !spusti hudbu
   DISPLAY ON
   FRONTS 1
   RASTPORT wrp%(1)
@@ -198,7 +197,8 @@ PROCEDURE initgame
   NEXT i&
   ' --------laser
   FOR i&=0 TO las.max&
-    GET 0,384,15,390,las.img$(i&)
+    GET 693,16,708,31,las.img$(i&)
+    ' GET 0,384,15,390,las.img$(i&)
   NEXT i&
   RASTPORT wrp%(0)
   ~Permit()
@@ -1419,6 +1419,9 @@ RETURN
 PROCEDURE addlaser(x&,y&,vx&,vy&,type|)
   LOCAL l&
   INC las.num&                !add new laser
+  IF las.num&>las.max& OR las.num&<0
+    las.num&=0
+  ENDIF
   l&=las.ptr&(las.num&)
   las.x&(l&)=x&
   las.y&(l&)=y&
@@ -1472,7 +1475,7 @@ PROCEDURE movelaser
     ADD las.x&(l&),las.vx&(l&) !move in specified vector
     ADD las.y&(l&),las.vy&(l&)
     '
-    m%=miesto%+INT((las.x&(l&))/16)+INT((las.y&(l&))/16+1)*20
+    m%= miesto% + INT((las.x&(l&))/16) + INT((las.y&(l&))/16+1) * 20
     PUT las.x&(l&),las.y&(l&),las.img$(l&)    !new position
     ' PUT las.lx&(l&),las.ly&(l&),las.img$(l&)  !old position
     '
