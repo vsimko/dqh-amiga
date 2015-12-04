@@ -187,1954 +187,1962 @@ PROCEDURE initgame
   SCROLL -4,-2,0,0,815,563
   '  prginfo
   RASTPORT wrp%(1)
-  ' --------palko
+  ' =====================================
+  ' -------- caching palko patterns
   FOR i&=0 TO 49
     GET i&*16,0,i&*16+15,31,palko$(i&)
   NEXT i&
-  ' --------vec
+  ' -------- caching item patterns
   FOR i&=0 TO 11
     GET i&*16,384,i&*16+15,399,vec$(i&)
   NEXT i&
-  ' --------laser
+  ' -------- caching laser pattern
   FOR i&=0 TO las.max&
-    GET 693,16,708,31,las.img$(i&)
+    GET 64,249,79,250,las.img$(i&)
     ' GET 0,384,15,390,las.img$(i&)
   NEXT i&
+  ' =====================================
   RASTPORT wrp%(0)
   ~Permit()
   ~CloseWorkBench()
 RETURN
-PROCEDURE prginfo
-  RASTPORT wrp%(1)
-  GET 0,513,143,559,aaa$
-  RASTPORT wrp%(0)
-  CLEARW #1
-  f.1
-  PUT 80,74,aaa$
-  ~Delay(40)
-  effect(0)
-  CLEARW #1
-  aaa$=""
-  pis(120,90,"PRESENTS",3)
-  ~Delay(40)
-  effect(0)
-  CLEARW #1
-  RASTPORT wrp%(1)
-  GET 144,512,207,543,aaa$
-  RASTPORT wrp%(0)
-  PUT 120,74,aaa$
-  ~Delay(40)
-  effect(0)
-  CLEARW #1
-  CLR aaa$
+> PROCEDURE prginfo
+RASTPORT wrp%(1)
+GET 0,513,143,559,aaa$
+RASTPORT wrp%(0)
+CLEARW #1
+f.1
+PUT 80,74,aaa$
+~Delay(40)
+effect(0)
+CLEARW #1
+aaa$=""
+pis(120,90,"PRESENTS",3)
+~Delay(40)
+effect(0)
+CLEARW #1
+RASTPORT wrp%(1)
+GET 144,512,207,543,aaa$
+RASTPORT wrp%(0)
+PUT 120,74,aaa$
+~Delay(40)
+effect(0)
+CLEARW #1
+CLR aaa$
 RETURN
-PROCEDURE startmenu
-  f.0
-  CLEARW #1
-  file%=Open(@sadd("RAM:dev.obr"),1005)
-  IF file%=0 !not exist
-    gameerror
-  ENDIF
-  FOR i&=0 TO 2
-    long%=Read(file%,bit%(0,i&),8480)
-  NEXT i&
-  ~Close(file%)
-  IF NOT EXIST("DEVIL:text")
-    gameerror
-  ENDIF
-  FOR i&=0 TO 2
-    BMOVE bit%(0,i&),obrmem%(0,i&),8480
-  NEXT i&
-  f.4
-  CLR level&,cast&,x&,y&,teraz&,body%,laser&,box&,stx&,key&,navrat&
-  speed&=3
-  cas&=1
-  life&=6
-  FOR i&=0 TO 300 !caka pri uvodnom obrazku
-    ~Delay(1)
-    ink$=INKEY$
-    EXIT IF @joyf<>0 !skonci pokial bol stlaceny joystick
-  NEXT i&
-  IF i&>300
-    devilinfo
-  ENDIF
-  menu_loop:
-  effect(1)
-  ' vnutorne rozmery cierneho okna: 66,64,246,160
-  COLOR 1
-  BOX 63,61,249,163
-  COLOR 5
-  BOX 64,62,248,162
-  COLOR 6
-  BOX 65,63,247,161
-  x&=79
-  pis2(x&,77," START  GAME.",1,7)
-  pis2(x&,93,"   PRACTISE",1,7)
-  pis2(x&,109,"   PASSWORD",1,7)
-  pis2(x&,125,"   OPTIONS..",1,7)
-  pis2(x&,141,"     INFO",1,7)
-  pis2(x&,157," QUIT  GAME !",1,7)
-  x&=70
-  y&=64
-  ' GET x&,y&,x&+15,y&+15,array$
-  inpbufclr
-  WHILE @joyf=0
-    ink$=INKEY$
-    stx&=@joyy
-    IF stx&=-1 AND y&<>64
-      FOR i&=0 TO 15
-        PUT x&,y&,vec$(9)
-        DEC y&
-      NEXT i&
-    ELSE IF stx&=1 AND y&<>144
-      FOR i&=0 TO 15
-        PUT x&,y&,vec$(9)
-        INC y&
-      NEXT i&
-    ENDIF
-    PUT x&,y&,vec$(9)
-    ~Delay(4)
-    PUT x&,y&,vec$(10)
-    ~Delay(3)
-  WEND
+> PROCEDURE startmenu
+f.0
+CLEARW #1
+file%=Open(@sadd("RAM:dev.obr"),1005)
+IF file%=0 !not exist
+gameerror
+ENDIF
+FOR i&=0 TO 2
+long%=Read(file%,bit%(0,i&),8480)
+NEXT i&
+~Close(file%)
+IF NOT EXIST("DEVIL:text")
+gameerror
+ENDIF
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(0,i&),8480
+NEXT i&
+f.4
+CLR level&,cast&,x&,y&,teraz&,body%,laser&,box&,stx&,key&,navrat&
+speed&=3
+cas&=1
+life&=6
+FOR i&=0 TO 300 !caka pri uvodnom obrazku
+~Delay(1)
+ink$=INKEY$
+EXIT IF @joyf<>0 !skonci pokial bol stlaceny joystick
+NEXT i&
+IF i&>300
+devilinfo
+ENDIF
+menu_loop:
+effect(1)
+' vnutorne rozmery cierneho okna: 66,64,246,160
+COLOR 1
+BOX 63,61,249,163
+COLOR 5
+BOX 64,62,248,162
+COLOR 6
+BOX 65,63,247,161
+x&=79
+pis2(x&,77," START  GAME.",1,7)
+pis2(x&,93,"   PRACTISE",1,7)
+pis2(x&,109,"   PASSWORD",1,7)
+pis2(x&,125,"   OPTIONS..",1,7)
+pis2(x&,141,"     INFO",1,7)
+pis2(x&,157," QUIT  GAME !",1,7)
+x&=70
+y&=64
+' GET x&,y&,x&+15,y&+15,array$
+inpbufclr
+WHILE @joyf=0
+ink$=INKEY$
+stx&=@joyy
+IF stx&=-1 AND y&<>64
   FOR i&=0 TO 15
-    SCROLL -1,0,x&,y&,x&+15,y&+15
+    PUT x&,y&,vec$(9)
+    DEC y&
   NEXT i&
-  SELECT y&
-  CASE 64 !startgame item selected
-    GOTO exit_startmenu
-  CASE 80 !practice item selected
-    life&=25
-    laser&=25
-    navrat&=1
-    GOTO exit_startmenu
-  CASE 96 !password item selected
-    inpbufclr
-    effect(1)
-    pis2(79,77,"TYPE PASSWORD",1,7)
-    CLR a$
-    FOR i&=0 TO 5
-      CLR ink$
-      waitforinput
-      a$=a$+UPPER$(ink$)
-      pis(112,110,a$,7)
-    NEXT i&
-    FOR i&=0 TO 15
-      EXIT IF a$=code$(i&)
-    NEXT i&
-    IF i&=16
-      i&=15
-    ENDIF
-    IF a$=code$(i&)
-      level&=i&
-      GOTO exit_startmenu
-    ENDIF
-    IF a$="TOTALT"
-      life&=1000
-      body%=10000
-      laser&=1000
-      box&=1000
-    ELSE IF a$="XLASER"
-      laser&=20
-    ELSE IF a$="XBEDNA"
-      box&=20
-    ELSE IF a$="XKLUCE"
-      key&=20
-    ENDIF
-    GOTO menu_loop
-  CASE 112
-    options
-  CASE 128
-    FOR i&=0 TO 2
-      BMOVE bit%(0,i&),obrmem%(0,i&),8480
-    NEXT i&
-    devilinfo
-  CASE 144
-    f.1
-    gameerror
-  ENDSELECT
-  GOTO menu_loop
-  exit_startmenu:
+ELSE IF stx&=1 AND y&<>144
+  FOR i&=0 TO 15
+    PUT x&,y&,vec$(9)
+    INC y&
+  NEXT i&
+ENDIF
+PUT x&,y&,vec$(9)
+~Delay(4)
+PUT x&,y&,vec$(10)
+~Delay(3)
+WEND
+FOR i&=0 TO 15
+SCROLL -1,0,x&,y&,x&+15,y&+15
+NEXT i&
+SELECT y&
+CASE 64 !startgame item selected
+GOTO exit_startmenu
+CASE 80 !practice item selected
+life&=25
+laser&=25
+navrat&=1
+GOTO exit_startmenu
+CASE 96 !password item selected
+inpbufclr
+effect(1)
+pis2(79,77,"TYPE PASSWORD",1,7)
+CLR a$
+FOR i&=0 TO 5
+  CLR ink$
+  waitforinput
+  a$=a$+UPPER$(ink$)
+  pis(112,110,a$,7)
+NEXT i&
+FOR i&=0 TO 15
+  EXIT IF a$=code$(i&)
+NEXT i&
+IF i&=16
+  i&=15
+ENDIF
+IF a$=code$(i&)
+  level&=i&
+  GOTO exit_startmenu
+ENDIF
+IF a$="TOTALT"
+  life&=1000
+  body%=10000
+  laser&=1000
+  box&=1000
+ELSE IF a$="XLASER"
+  laser&=20
+ELSE IF a$="XBEDNA"
+  box&=20
+ELSE IF a$="XKLUCE"
+  key&=20
+ENDIF
+GOTO menu_loop
+CASE 112
+options
+CASE 128
+FOR i&=0 TO 2
+  BMOVE bit%(0,i&),obrmem%(0,i&),8480
+NEXT i&
+devilinfo
+CASE 144
+f.1
+gameerror
+ENDSELECT
+GOTO menu_loop
+exit_startmenu:
 RETURN
-PROCEDURE inpbufclr !clear input buffer
-  WHILE @joyf<>0 OR ink$<>""
-    ink$=INKEY$
-  WEND
+> PROCEDURE inpbufclr !clear input buffer
+WHILE @joyf<>0 OR ink$<>""
+ink$=INKEY$
+WEND
 RETURN
-PROCEDURE waitforinput
-  REPEAT
-    ink$=INKEY$
-  UNTIL ink$<>"" OR @joyf<>0
+> PROCEDURE waitforinput
+REPEAT
+ink$=INKEY$
+UNTIL ink$<>"" OR @joyf<>0
 RETURN
-FUNCTION sadd(a$) ! retazec na pouzitie pre libraries
-  $F%
-  a$=a$+CHR$(0)         !string must end with chr(0) like C++
-  RETURN VARPTR(a$)     !pointer to a$ in memory
+> FUNCTION sadd(a$) ! retazec na pouzitie pre libraries
+$F%
+a$=a$+CHR$(0)         !string must end with chr(0) like C++
+RETURN VARPTR(a$)     !pointer to a$ in memory
 ENDFUNC
-FUNCTION joyx
-  $F%
-  IF ink$=""            !without keyboard
-    SELECT STICK(2)
-    CASE 8,9,10         !direction upleft left downleft
-      RETURN 1
-    CASE 4,5,6          !direction upright right downright
-      RETURN -1
-    ENDSELECT
-  ELSE                  !with keyboard
-    SELECT ink$
-    CASE "7","4","1"
-      RETURN -1
-    CASE "9","6","3"
-      RETURN 1
-    ENDSELECT
-  ENDIF
-  RETURN 0              !nothing happened
+> FUNCTION joyx
+$F%
+IF ink$=""            !without keyboard
+SELECT STICK(2)
+CASE 8,9,10         !direction upleft left downleft
+RETURN 1
+CASE 4,5,6          !direction upright right downright
+RETURN -1
+ENDSELECT
+ELSE                  !with keyboard
+SELECT ink$
+CASE "7","4","1"
+RETURN -1
+CASE "9","6","3"
+RETURN 1
+ENDSELECT
+ENDIF
+RETURN 0              !nothing happened
 ENDFUNC
-FUNCTION joyy
-  $F%
-  IF ink$=""            !without keyboard
-    SELECT STICK(2)
-    CASE 1,5,9          !jump "upleft" "up" "upright"
-      RETURN -1
-    CASE 2,6,10         !jump "downleft" "down" "downright"
-      RETURN 1
-    ENDSELECT
-  ELSE                  !using keyboard
-    SELECT ink$
-    CASE "7","8","9"
-      RETURN -1
-    CASE "1","2","3"
-      RETURN 1
-    ENDSELECT
-  ENDIF
-  RETURN 0              !nothing happened
+> FUNCTION joyy
+$F%
+IF ink$=""            !without keyboard
+SELECT STICK(2)
+CASE 1,5,9          !jump "upleft" "up" "upright"
+RETURN -1
+CASE 2,6,10         !jump "downleft" "down" "downright"
+RETURN 1
+ENDSELECT
+ELSE                  !using keyboard
+SELECT ink$
+CASE "7","8","9"
+RETURN -1
+CASE "1","2","3"
+RETURN 1
+ENDSELECT
+ENDIF
+RETURN 0              !nothing happened
 ENDFUNC
-FUNCTION joyf
-  $F%
-  IF ink$=""            !without keyboard
-    IF STRIG(3)
-      IF @joyy=1        !joy down+fire=laser
-        RETURN 2
-      ELSE
-        RETURN 1
-      ENDIF
-    ENDIF
-  ELSE IF ink$="0"      !kbd "0"
-    RETURN 1
-  ELSE IF ink$="."      !kbd "."
-    RETURN 2
-  ENDIF
-  RETURN 0              !nothing happened
+> FUNCTION joyf
+$F%
+IF ink$=""            !without keyboard
+IF STRIG(3)
+IF @joyy=1        !joy down+fire=laser
+RETURN 2
+ELSE
+RETURN 1
+ENDIF
+ENDIF
+ELSE IF ink$="0"      !kbd "0"
+RETURN 1
+ELSE IF ink$="."      !kbd "."
+RETURN 2
+ENDIF
+RETURN 0              !nothing happened
 ENDFUNC
 '
-PROCEDURE nothing !blind procedure
-  $P<
+> PROCEDURE nothing !blind procedure
+$P<
 RETURN
-PROCEDURE getswgfx !read gfx data about win,scr
-  $P<
-  FOR i&=0 TO 1
-    srp%(i&)=scr%(i&)+84
-    wrp%(i&)={win%(i&)+50}
-  NEXT i&
-  FOR i&=0 TO 2
-    bit%(0,i&)={{scr%(0)+88}+8+i&*4}
-    bit%(1,i&)={{scr%(1)+88}+8+i&*4}
-  NEXT i&
+> PROCEDURE getswgfx !read gfx data about win,scr
+$P<
+FOR i&=0 TO 1
+srp%(i&)=scr%(i&)+84
+wrp%(i&)={win%(i&)+50}
+NEXT i&
+FOR i&=0 TO 2
+bit%(0,i&)={{scr%(0)+88}+8+i&*4}
+bit%(1,i&)={{scr%(1)+88}+8+i&*4}
+NEXT i&
 RETURN
-PROCEDURE gameerror !handler for prg errors
-  $P<
-  BYTE{20307}=0 !pointer on
-  ~Permit()
-  ~OpenWorkBench()
-  IF miesto%>1
-    ~FreeMem(miesto%-20,300)
-  ENDIF
-  CLOSEW #1
-  CLOSEW #2
-  CLOSES 1
-  CLOSES 2
-  FOR i&=0 TO 9
-    FOR ii&=0 TO 2
-      IF obrmem%(i&,ii&)>0
-        ~FreeMem(obrmem%(i&,ii&),8480)
-      ENDIF
-    NEXT ii&
-    IF miesto%(i&)>1
-      ~FreeMem(miesto%(i&),316)
-    ENDIF
-  NEXT i&
-  EDIT !open editor
-RETURN
-'
-PROCEDURE f.0 ! black screen
-  $P<
-  LOCAL i&
-  FOR i&=0 TO 7
-    SETCOLOR i&,0
-  NEXT i&
-RETURN
-PROCEDURE f.1 ! normal colors
-  $P<
-  SETCOLOR 0,0          !black
-  SETCOLOR 1,&HFFF      !white
-  SETCOLOR 2,&H80       !green
-  SETCOLOR 3,&HB00      !red
-  SETCOLOR 4,&HF88      !pink
-  SETCOLOR 5,&HFF       !blue
-  SETCOLOR 6,&HFB0      !yellow
-  SETCOLOR 7,&H530      !brown
-RETURN
-PROCEDURE f.2 ! slide from black to normal
-  $P<
-  LOCAL z
-  FOR z=30 TO 1 STEP -0.5
-    SETCOLOR 1,11/(z*2),11/(z*2),11/(z*2)
-    SETCOLOR 2,0,8/z,0
-    SETCOLOR 3,11/z,0,0
-    SETCOLOR 4,15/z,8/z,8/z
-    SETCOLOR 5,0,15/z,15/z
-    SETCOLOR 6,15/z,11/z,0
-    SETCOLOR 7,5/z,3/z,0
-  NEXT z
-  f.1
-RETURN
-PROCEDURE f.3 ! slide from normal to black
-  $P<
-  LOCAL n
-  FOR n=1 TO 5 STEP 0.2
-    SETCOLOR 1,11/(n*2),11/(n*2),11/(n*2)
-    SETCOLOR 2,0,8/n,0
-    SETCOLOR 3,11/n,0,0
-    SETCOLOR 4,15/n,8/n,8/n
-    SETCOLOR 5,0,15/n,15/n
-    SETCOLOR 6,15/n,11/n,0
-    SETCOLOR 7,5/n,3/n,0
-  NEXT n
-  f.0
-RETURN
-PROCEDURE f.4 ! palette for devil's queer house picture
-  $P<
-  SETCOLOR 1,10,10,10
-  SETCOLOR 2,3,2,1
-  SETCOLOR 3,6,6,5
-  SETCOLOR 4,6,5,4
-  SETCOLOR 5,6,6,6
-  SETCOLOR 6,2,1,0
-  SETCOLOR 7,15,0,0
+> PROCEDURE gameerror !handler for prg errors
+$P<
+BYTE{20307}=0 !pointer on
+~Permit()
+~OpenWorkBench()
+IF miesto%>1
+~FreeMem(miesto%-20,300)
+ENDIF
+CLOSEW #1
+CLOSEW #2
+CLOSES 1
+CLOSES 2
+FOR i&=0 TO 9
+FOR ii&=0 TO 2
+IF obrmem%(i&,ii&)>0
+~FreeMem(obrmem%(i&,ii&),8480)
+ENDIF
+NEXT ii&
+IF miesto%(i&)>1
+~FreeMem(miesto%(i&),316)
+ENDIF
+NEXT i&
+EDIT !open editor
 RETURN
 '
-PROCEDURE setstyle(mask&) ! set font style
-  $P<
-  ~SetSoftStyle(wrp&(0),mask&,AskSoftStyle(wrp%(0)))
+> PROCEDURE f.0 ! black screen
+$P<
+LOCAL i&
+FOR i&=0 TO 7
+SETCOLOR i&,0
+NEXT i&
 RETURN
-PROCEDURE win(x1,y1,x2,y2,fast&) ! make gadget window
-  $P<
-  LOCAL f&,sx,sy,stx,sty,i&
-  x1=x1
-  x2=x2
-  y1=y1
-  y2=y2
-  f&=fast&-1
-  sx=(x2-x1)/2+x1
-  sy=(y2-y1)/2+y1
-  stx=(sx-x1)/f&
-  sty=(sy-y1)/f&
-  x1=sx
-  x2=sx
-  y1=sy
-  y2=sy
-  FOR i&=1 TO f&
-    x1=x1-stx
-    x2=x2+stx
-    y1=y1-sty
-    y2=y2+sty
-    COLOR 6
-    BOX x1-2,y1-2,x2+2,y2+2
-    COLOR 7
-    BOX x1-1,y1-1,x2+2,y2+2
-    COLOR 6
-    BOX x1-1,y1-1,x2+1,y2+1
-    COLOR 7
-    BOX x1,y1,x2+1,y2+1
-    COLOR 1
-    PBOX x1,y1,x2,y2
-  NEXT i&
+> PROCEDURE f.1 ! normal colors
+$P<
+SETCOLOR 0,0          !black
+SETCOLOR 1,&HFFF      !white
+SETCOLOR 2,&H80       !green
+SETCOLOR 3,&HB00      !red
+SETCOLOR 4,&HF88      !pink
+SETCOLOR 5,&HFF       !blue
+SETCOLOR 6,&HFB0      !yellow
+SETCOLOR 7,&H530      !brown
 RETURN
-PROCEDURE effect(n|) ! screen effects
-  $P<
-  LOCAL i&
-  SELECT n|
-  CASE 0 !zaciatocne vyrolovanie
-    FOR i&=72 TO 244
-      SCROLL 0,-5,72,0,i&,200
-      SCROLL 0,5,i&+8,0,i&+15,200
-    NEXT i&
-  CASE 1 !vymazanie okienka v start menu skrz
-    COLOR 0
-    FOR i&=66 TO 246 STEP 2
-      LINE i&,64,i&,160
-      LINE 311-i&,64,311-i&,160
-    NEXT i&
-  ENDSELECT
+> PROCEDURE f.2 ! slide from black to normal
+$P<
+LOCAL z
+FOR z=30 TO 1 STEP -0.5
+SETCOLOR 1,11/(z*2),11/(z*2),11/(z*2)
+SETCOLOR 2,0,8/z,0
+SETCOLOR 3,11/z,0,0
+SETCOLOR 4,15/z,8/z,8/z
+SETCOLOR 5,0,15/z,15/z
+SETCOLOR 6,15/z,11/z,0
+SETCOLOR 7,5/z,3/z,0
+NEXT z
+f.1
 RETURN
-PROCEDURE vystrek(x&,y&,dlz&,dots&) !rozpad ducha na castice
-  LOCAL i&,ii&,g&
-  g&=1
-  DIM vxy(1,dots&,1),rych(1,dots&)
-  '  GRAPHMODE 3
-  FOR i&=0 TO dots&
-    FOR ii&=0 TO 1
-      vxy(0,i&,ii&)=x&+RAND(16)
-      vxy(1,i&,ii&)=y&
-    NEXT ii&
-    rych(1,i&)=-((RAND(30)+20)/10)
-    rych(0,i&)=((RAND(30)+20-10)/10)*((teraz&=2)-(teraz&=1))
-    ' PLOT vxy(0,i&,0),vxy(1,i&,0)
-  NEXT i&
-  '
-  FOR ii&=0 TO dlz&
-    FOR i&=0 TO dots& !rozpad castic
-      ADD rych(1,i&),g&
-      ADD vxy(0,i&,0),rych(0,i&)
-      ADD vxy(1,i&,0),rych(1,i&)
-      COLOR 6
-      PLOT vxy(0,i&,0),vxy(1,i&,0)
-      COLOR 0
-      PLOT vxy(0,i&,1),vxy(1,i&,1)
-      vxy(0,i&,1)=vxy(0,i&,0)
-      vxy(1,i&,1)=vxy(1,i&,0)
-    NEXT i&
-  NEXT ii&
-  FOR i&=0 TO dots&
-    COLOR 0
-    PLOT vxy(0,i&,1),vxy(1,i&,1)
-  NEXT i&
-  '
-  ' GRAPHMODE 1
-  ERASE vxy(),rych()
+> PROCEDURE f.3 ! slide from normal to black
+$P<
+LOCAL n
+FOR n=1 TO 5 STEP 0.2
+SETCOLOR 1,11/(n*2),11/(n*2),11/(n*2)
+SETCOLOR 2,0,8/n,0
+SETCOLOR 3,11/n,0,0
+SETCOLOR 4,15/n,8/n,8/n
+SETCOLOR 5,0,15/n,15/n
+SETCOLOR 6,15/n,11/n,0
+SETCOLOR 7,5/n,3/n,0
+NEXT n
+f.0
 RETURN
-PROCEDURE testxy !if not in wall
-  $P<
-  ' test if palko didn't appear in the wall or if there's enough space for palko
-  LOCAL t%
-  CLR num&
-  t%=miesto%+INT(x&/16)+INT(y&/16)*20
-  IF BYTE{t%+1}<>0 OR BYTE{t%+21}<>0
-    num&=1
-    IF BYTE{t%-1}=0 OR BYTE{t%+19}=0
-      CLR num&
-    ENDIF
-  ENDIF
-  IF BYTE{t%-1}<>0 OR BYTE{t%+19}<>0
-    num&=1
-    IF BYTE{t%+1}=0 OR BYTE{t%+21}=0
-      CLR num&
-    ENDIF
-  ENDIF
-  IF BYTE{t%}<>0 OR BYTE{t%+20}<>0
-    num&=1
-  ENDIF
-  IF num&=1
-    y&=176
-    WHILE BYTE{t%}<>0 OR BYTE{t%+20}<>0 OR BYTE{t%+1}<>0 OR BYTE{t%+21}<>0 OR BYTE{t%+40}<>1
-      SUB y&,16
-      IF y&<0
-        y&=176
-        ADD x&,16
-        IF x&>320
-          CLR x&
-        ENDIF
-      ENDIF
-      t%=miesto%+INT(x&/16)+INT(y&/16)*20
-    WEND
-  ENDIF
+> PROCEDURE f.4 ! palette for devil's queer house picture
+$P<
+SETCOLOR 1,10,10,10
+SETCOLOR 2,3,2,1
+SETCOLOR 3,6,6,5
+SETCOLOR 4,6,5,4
+SETCOLOR 5,6,6,6
+SETCOLOR 6,2,1,0
+SETCOLOR 7,15,0,0
 RETURN
 '
-PROCEDURE newlevel !novy level
-  $P>
-  LOCAL dy&,i&,ii&,pxd&
-  IF ink$<>CHR$(27)
-    f.3
-  ELSE
-    CLR ink$
-  ENDIF
-  DISPLAY OFF
-  INC level&
-  IF level&>toplevel&
-    CLR life&
-    f.0
-    DISPLAY ON
-    navrat&=2
-    GOTO exit
-  ENDIF
-  nam$="DEVIL:levels/level "+STR$(level&)
-  IF level&<>1 AND navrat&=1
-    CLR life&
-    f.0
-    DISPLAY ON
-    GOTO exit
-  ENDIF
-  file%=Open(@sadd(nam$),1005)
-  IF file%=0
-    gameerror
-  ENDIF
-  ~Close(file%)
-  OPEN "i",#1,nam$
-  x&=(FN l1)*16
-  y&=(FN l1)*16
-  teraz&=FN l1
-  cast&=FN l1
-  c&=cast&-1
-  RASTPORT wrp%(1)
-  FOR i&=0 TO 5
-    typ&=@l1
-    IF typ&>7
-      dy&=64
-      SUB typ&,8
-    ELSE
-      dy&=32
-    ENDIF
-    FOR ii&=0 TO 5
-      pxd&=(typ&*96)+(ii&*16)
-      GET pxd&,dy&,pxd&+15,dy&+31,duch$(i&*6+ii&)
-    NEXT ii&
-  NEXT i&
-  RASTPORT wrp%(0)
-  CLEARW #1
-  FOR ii&=0 TO 9
-    num&=FN l2
-    FOR i&=1 TO num&
-      RASTPORT wrp%((FN l1)-2)
-      mx&=FN l2
-      my&=FN l2
-      GET mx&,my&,mx&+FN l1,my&+FN l1,array$
-      RASTPORT wrp%(0)
-      PUT FN l2,FN l2,array$,96
-    NEXT i&
-    FOR bit&=0 TO 2
-      BMOVE bit%(0,bit&),obrmem%(ii&,bit&),8480
-    NEXT bit&
-    CLEARW #1
-  NEXT ii&
-  FOR i&=0 TO 9
-    BMOVE @sadd(INPUT$(316,#1)),miesto%(i&),316
-  NEXT i&
-  BMOVE miesto%(c&),miesto%,260
-  num&=BYTE{miesto%(c&)+260}
-  isy&=INT(num&/20)
-  isx&=num&-isy&*20
-  MUL isx&,16
-  MUL isy&,16
-  mem%=miesto%(c&)+261
-  CLR num&,a$
-  FOR i&=0 TO 3
-    sjvz&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    tele&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    FOR ii&=0 TO 7
-      dd&(i&,ii&)=WORD{mem%+num&}
-      ADD num&,2
-    NEXT ii&
-  NEXT i&
-  FOR i&=0 TO 2
-    BMOVE obrmem%(c&,i&),bit%(0,i&),8480
-  NEXT i&
-  RASTPORT wrp%(0)
-  CLR a$,num&
-  tim
-  PUT x&,y&,palko$(teraz&*7-7)
-  tim
-  CLOSE #1
-  DISPLAY ON
-  exit:
-  f.2
+> PROCEDURE setstyle(mask&) ! set font style
+$P<
+~SetSoftStyle(wrp&(0),mask&,AskSoftStyle(wrp%(0)))
 RETURN
-PROCEDURE scrnext !connecton between screens
-  $P>
-  LOCAL num&,mem%,a$
-  cc&=c&
-  IF x&>300
-    IF sjvz&(2)=0
-      x&=300
-      GOTO exit
-    ELSE
-      COLOR 0
-      PBOX x&,y&,x&+15,y&+31
-      CLR x&
-      cast&=sjvz&(2)
-      GOTO scrnextp
-    ENDIF
-  ENDIF
-  IF x&<0
-    IF sjvz&(3)=0
-      CLR x&
-      GOTO exit_scrnext
-    ELSE
-      COLOR 0
-      PBOX x&,y&,x&+15,y&+31
-      x&=300
-      cast&=sjvz&(3)
-      GOTO scrnextp
-    ENDIF
-  ENDIF
-  IF y&>176
-    IF sjvz&(1)=0
-      y&=176
-      GOTO exit_scrnext
-    ELSE
-      COLOR 0
-      PBOX x&,y&,x&+15,y&+31
-      CLR y&
-      cast&=sjvz&(1)
-      GOTO scrnextp
-    ENDIF
-  ENDIF
-  IF y&<0
-    IF sjvz&(0)=0
-      CLR y&
-      GOTO exit_scrnext
-    ELSE
-      COLOR 0
-      PBOX x&,y&,x&+15,y&+31
-      y&=176
-      cast&=sjvz&(0)
-      GOTO scrnextp
-    ENDIF
-  ENDIF
-  scrnextp:
-  c&=cast&-1
-  IF cast&=11
-    newlevel
-    GOTO exit_scrnext
-  ENDIF
-  BMOVE miesto%,miesto%(cc&),260
-  FOR i&=0 TO 2
-    BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
-  NEXT i&
-  CLR a$
-  FOR i&=0 TO 3
-    a$=a$+CHR$(sjvz&(i&))
-  NEXT i&
-  FOR i&=0 TO 2
-    a$=a$+CHR$(tele&(i&))
-  NEXT i&
-  FOR i&=0 TO 2
-    FOR ii&=0 TO 7
-      a$=a$+MKI$(dd&(i&,ii&))
-    NEXT ii&
-  NEXT i&
-  BMOVE VARPTR(a$),miesto%(cc&)+261,55
-  BMOVE miesto%(c&),miesto%,260
-  num&=BYTE{miesto%(c&)+260}
-  isy&=INT(num&/20)
-  isx&=num&-isy&*20
-  MUL isx&,16
-  MUL isy&,16
-  mem%=miesto%(c&)+261
-  CLR num&,a$
-  FOR i&=0 TO 3
-    sjvz&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    tele&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    FOR ii&=0 TO 7
-      dd&(i&,ii&)=WORD{mem%+num&}
-      ADD num&,2
-    NEXT ii&
-  NEXT i&
-  FOR i&=0 TO 2
-    BMOVE obrmem%(c&,i&),bit%(0,i&),8480
-  NEXT i&
-  CLR a$,num&
-  testxy
-  exit_scrnext:
+> PROCEDURE win(x1,y1,x2,y2,fast&) ! make gadget window
+$P<
+LOCAL f&,sx,sy,stx,sty,i&
+x1=x1
+x2=x2
+y1=y1
+y2=y2
+f&=fast&-1
+sx=(x2-x1)/2+x1
+sy=(y2-y1)/2+y1
+stx=(sx-x1)/f&
+sty=(sy-y1)/f&
+x1=sx
+x2=sx
+y1=sy
+y2=sy
+FOR i&=1 TO f&
+x1=x1-stx
+x2=x2+stx
+y1=y1-sty
+y2=y2+sty
+COLOR 6
+BOX x1-2,y1-2,x2+2,y2+2
+COLOR 7
+BOX x1-1,y1-1,x2+2,y2+2
+COLOR 6
+BOX x1-1,y1-1,x2+1,y2+1
+COLOR 7
+BOX x1,y1,x2+1,y2+1
+COLOR 1
+PBOX x1,y1,x2,y2
+NEXT i&
+RETURN
+> PROCEDURE effect(n|) ! screen effects
+$P<
+LOCAL i&
+SELECT n|
+CASE 0 !zaciatocne vyrolovanie
+FOR i&=72 TO 244
+SCROLL 0,-5,72,0,i&,200
+SCROLL 0,5,i&+8,0,i&+15,200
+NEXT i&
+CASE 1 !vymazanie okienka v start menu skrz
+COLOR 0
+FOR i&=66 TO 246 STEP 2
+LINE i&,64,i&,160
+LINE 311-i&,64,311-i&,160
+NEXT i&
+ENDSELECT
+RETURN
+> PROCEDURE vystrek(x&,y&,dlz&,dots&) !rozpad ducha na castice
+LOCAL i&,ii&,g&
+g&=1
+DIM vxy(1,dots&,1),rych(1,dots&)
+'  GRAPHMODE 3
+FOR i&=0 TO dots&
+FOR ii&=0 TO 1
+vxy(0,i&,ii&)=x&+RAND(16)
+vxy(1,i&,ii&)=y&
+NEXT ii&
+rych(1,i&)=-((RAND(30)+20)/10)
+rych(0,i&)=((RAND(30)+20-10)/10)*((teraz&=2)-(teraz&=1))
+' PLOT vxy(0,i&,0),vxy(1,i&,0)
+NEXT i&
+'
+FOR ii&=0 TO dlz&
+FOR i&=0 TO dots& !rozpad castic
+ADD rych(1,i&),g&
+ADD vxy(0,i&,0),rych(0,i&)
+ADD vxy(1,i&,0),rych(1,i&)
+COLOR 6
+PLOT vxy(0,i&,0),vxy(1,i&,0)
+COLOR 0
+PLOT vxy(0,i&,1),vxy(1,i&,1)
+vxy(0,i&,1)=vxy(0,i&,0)
+vxy(1,i&,1)=vxy(1,i&,0)
+NEXT i&
+NEXT ii&
+FOR i&=0 TO dots&
+COLOR 0
+PLOT vxy(0,i&,1),vxy(1,i&,1)
+NEXT i&
+'
+' GRAPHMODE 1
+ERASE vxy(),rych()
+RETURN
+> PROCEDURE testxy !if not in wall
+$P<
+' test if palko didn't appear in the wall or if there's enough space for palko
+LOCAL t%
+CLR num&
+t%=miesto%+INT(x&/16)+INT(y&/16)*20
+IF BYTE{t%+1}<>0 OR BYTE{t%+21}<>0
+num&=1
+IF BYTE{t%-1}=0 OR BYTE{t%+19}=0
+CLR num&
+ENDIF
+ENDIF
+IF BYTE{t%-1}<>0 OR BYTE{t%+19}<>0
+num&=1
+IF BYTE{t%+1}=0 OR BYTE{t%+21}=0
+CLR num&
+ENDIF
+ENDIF
+IF BYTE{t%}<>0 OR BYTE{t%+20}<>0
+num&=1
+ENDIF
+IF num&=1
+y&=176
+WHILE BYTE{t%}<>0 OR BYTE{t%+20}<>0 OR BYTE{t%+1}<>0 OR BYTE{t%+21}<>0 OR BYTE{t%+40}<>1
+SUB y&,16
+IF y&<0
+y&=176
+ADD x&,16
+IF x&>320
+CLR x&
+ENDIF
+ENDIF
+t%=miesto%+INT(x&/16)+INT(y&/16)*20
+WEND
+ENDIF
 RETURN
 '
-PROCEDURE go.right
-  $P>
-  ADD x&,3
-  poh&=-1
-  INC obr&
-  IF obr&>6
-    obr&=1
-  ENDIF
-  IF x&>300
-    scrnext
-  ENDIF
-  m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
-  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-  m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
-  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-  PUT x&,y&,palko$(obr&)
+> PROCEDURE newlevel !novy level
+$P>
+LOCAL dy&,i&,ii&,pxd&
+IF ink$<>CHR$(27)
+f.3
+ELSE
+CLR ink$
+ENDIF
+DISPLAY OFF
+INC level&
+IF level&>toplevel&
+CLR life&
+f.0
+DISPLAY ON
+navrat&=2
+GOTO exit
+ENDIF
+nam$="DEVIL:levels/level "+STR$(level&)
+IF level&<>1 AND navrat&=1
+CLR life&
+f.0
+DISPLAY ON
+GOTO exit
+ENDIF
+file%=Open(@sadd(nam$),1005)
+IF file%=0
+gameerror
+ENDIF
+~Close(file%)
+OPEN "i",#1,nam$
+x&=(FN l1)*16
+y&=(FN l1)*16
+teraz&=FN l1
+cast&=FN l1
+c&=cast&-1
+RASTPORT wrp%(1)
+FOR i&=0 TO 5
+typ&=@l1
+IF typ&>7
+dy&=64
+SUB typ&,8
+ELSE
+dy&=32
+ENDIF
+FOR ii&=0 TO 5
+pxd&=(typ&*96)+(ii&*16)
+GET pxd&,dy&,pxd&+15,dy&+31,duch$(i&*6+ii&)
+NEXT ii&
+NEXT i&
+RASTPORT wrp%(0)
+CLEARW #1
+FOR ii&=0 TO 9
+num&=FN l2
+FOR i&=1 TO num&
+RASTPORT wrp%((FN l1)-2)
+mx&=FN l2
+my&=FN l2
+GET mx&,my&,mx&+FN l1,my&+FN l1,array$
+RASTPORT wrp%(0)
+PUT FN l2,FN l2,array$,96
+NEXT i&
+FOR bit&=0 TO 2
+BMOVE bit%(0,bit&),obrmem%(ii&,bit&),8480
+NEXT bit&
+CLEARW #1
+NEXT ii&
+FOR i&=0 TO 9
+BMOVE @sadd(INPUT$(316,#1)),miesto%(i&),316
+NEXT i&
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+RASTPORT wrp%(0)
+CLR a$,num&
+tim
+PUT x&,y&,palko$(teraz&*7-7)
+tim
+CLOSE #1
+DISPLAY ON
+exit:
+f.2
 RETURN
-PROCEDURE go.left  !Palko ide <-
-  $P>
-  SUB x&,3
-  poh&=-1
-  INC obr&
-  IF obr&>6
-    obr&=1
-  ENDIF
-  IF x&<0
-    scrnext
-  ENDIF
-  m%=miesto%+INT(x&/16)+INT(y&/16)*20
-  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-  m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
-  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-  PUT x&,y&,palko$(obr&+7)
-RETURN
-PROCEDURE go.wall !a wall appears in front of Palko
-  $P<
-  IF teraz&=1
-    SUB x&,3
-  ELSE
-    ADD x&,3
-  ENDIF
-RETURN
-PROCEDURE jump.wall !when wall appears in palko's jump
-  $P<
-  IF teraz&=1
-    SUB x&,2
-  ELSE
-    ADD x&,2
-  ENDIF
-RETURN
-PROCEDURE turn.right
-  $P>
-  CLR obr&,poh&
-  teraz&=1
-  FOR i&=2 TO 0 STEP -1
-    PUT x&,y&,palko$(i&+14)
-    tim
-  NEXT i&
-RETURN
-PROCEDURE turn.left
-  $P>
-  CLR obr&,poh&
-  teraz&=2
-  FOR i&=0 TO 2 STEP 1
-    PUT x&,y&,palko$(i&+14)
-    tim
-  NEXT i&
-RETURN
-PROCEDURE sword.right
-  FOR i&=17 TO 19
-    ~Delay(1)
-    PUT x&,y&,palko$(i&)
-    tim
-  NEXT i&
-  m%=miesto%+INT(x&/16+1.4)+INT(y&/16+1.2)*20
-  zly&=BYTE{m%}-15
-  IF zly&>-1
-    ghostkill
-  ENDIF
-  PUT x&,y&,palko$(0)
-RETURN
-PROCEDURE sword.left
-  FOR i&=20 TO 22
-    ~Delay(1)
-    PUT x&,y&,palko$(i&)
-    tim
-  NEXT i&
-  m%=miesto%+INT(x&/16-0.4)+INT(y&/16+1.2)*20
-  zly&=BYTE{m%}-15
-  IF zly&>-1
-    ghostkill
-  ENDIF
-  PUT x&,y&,palko$(7)
-RETURN
-PROCEDURE jump !how to jump - right or left teraz&=1 or 2
-  $P>
-  ON teraz& GOSUB jump.right,jump.left
-RETURN
-PROCEDURE jump.right
-  $P>
-  teraz&=1
-  PUT x&,y&,palko$(27)
-  g=4
-  WHILE poh&<20 AND @joyy=-1
-    stx&=@joyx
-    ' ink$=INKEY$
-    SUB y&,g
-    SUB g,0.1
-    INC poh&
-    IF stx&=1
-      ADD x&,2
-    ELSE
-      IF stx&<>0
-        jump.left
-        GOTO exit_s.p
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
-    ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-    m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
-    ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
-    m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
-    IF BYTE{m%}>0
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-      IF BYTE{m%}>6 AND BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}<7
-        fall.right
-        GOTO exit_s.p
-      ENDIF
-    ENDIF
-    INC m%
-    IF BYTE{m%}>0
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-      IF BYTE{m%}>6 AND BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}<7
-        fall.right
-        GOTO exit_s.p
-      ENDIF
-    ENDIF
-    PUT x&,y&,palko$(27)
-    IF y&<0 OR x&>300
-      scrnext
-    ENDIF
-    tim
-  WEND
-  fall.right
-  exit_s.p:
-RETURN
-PROCEDURE jump.left
-  $P>
-  teraz&=2
-  PUT x&,y&,palko$(28)
-  g=4
-  WHILE poh&<20 AND @joyy=-1
-    stx&=@joyx
-    ' ink$=INKEY$
-    SUB y&,g
-    SUB g,0.1
-    INC poh&
-    IF stx&=-1
-      SUB x&,2
-    ELSE
-      IF stx&<>0
-        jump.right
-        GOTO exit_s.l
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
-    ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-    m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-    ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
-    m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
-    IF BYTE{m%}>0
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-      IF BYTE{m%}>6 AND BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}<7
-        fall.left
-        GOTO exit_s.l
-      ENDIF
-    ENDIF
-    INC m%
-    IF BYTE{m%}>0
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-      IF BYTE{m%}>6 AND BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}<7
-        fall.left
-        GOTO exit_s.l
-      ENDIF
-    ENDIF
-    PUT x&,y&,palko$(28)
-    IF y&<0 OR x&<0
-      scrnext
-    ENDIF
-    tim
-  WEND
-  fall.left
-  exit_s.l:
-RETURN
-PROCEDURE fall.right
-  $P>
-  LOCAL statu&
-  IF poh&=0
-    m%=miesto%+INT((x&+7)/16)+INT(y&/16+2)*20
-    statu&=BYTE{m%}
-    IF statu&>0
-      ON statu& GOSUB nothing,nothing,destabil,hpn,door,teleport,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      GOTO exit_fall.right
-    ENDIF
-    IF BYTE{m%-19}=0 AND BYTE{m%-39}=0
-      FOR i&=0 TO 3
-        ADD x&,2
-        PUT x&,y&,palko$(30)
-        tim
-      NEXT i&
-    ELSE
-      FOR i&=3 TO 0 STEP -1
-        SUB x&,2
-        PUT x&,y&,palko$(i&)
-        COLOR 0
-        PBOX x&+15,y&,x&+17,y&+31
-        tim
-      NEXT i&
-      GOTO exit_fall.right
-    ENDIF
-  ELSE IF poh&>0
-    PUT x&,y&,palko$(30)
-    CLR poh&
-  ENDIF
-  teraz&=1
-  DO
-    stx&=@joyx
-    ink$=INKEY$
-    ADD y&,g
-    g=MIN((g+0.2),4)
-    IF stx&=1
-      ADD x&,2
-      m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
-    ELSE
-      IF stx&<>0
-        SUB y&,4
-        poh&=1
-        fall.left
-        GOTO exit_fall.right
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-    IF BYTE{m%}<>0
-      IF BYTE{m%}<7
-        CLR poh&
-        y&=INT(y&/16)*16
-        PUT x&,y&,palko$(0)
-        stx&=@joyx
-        GOTO exit_fall.right
-      ENDIF
-      IF BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
-    IF BYTE{m%}<>0
-      IF BYTE{m%}<7
-        CLR poh&
-        y&=INT(y&/16)*16
-        PUT x&,y&,palko$(0)
-        stx&=@joyx
-        GOTO exit_fall.right
-      ENDIF
-      IF BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-    ENDIF
-    PUT x&,y&,palko$(30)
-    IF y&>176 OR x&>300
-      scrnext
-    ENDIF
-    tim
-  LOOP
-  exit_fall.right:
-  g=3
-RETURN
-PROCEDURE fall.left
-  $P>
-  LOCAL statu&
-  IF poh&=0
-    m%=miesto%+INT((x&+9)/16)+INT(y&/16+2)*20
-    statu&=BYTE{m%}
-    IF statu&>0
-      ON statu& GOSUB nothing,nothing,destabil,hpn,door,teleport,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      GOTO exit_fall.left
-    ENDIF
-    IF BYTE{m%-21}=0 AND BYTE{m%-41}=0
-      FOR i&=0 TO 3
-        SUB x&,2
-        PUT x&,y&,palko$(31)
-        tim
-      NEXT i&
-    ELSE
-      FOR i&=10 TO 7 STEP -1
-        ADD x&,2
-        PUT x&,y&,palko$(i&)
-        COLOR 0
-        PBOX x&-2,y&,x&,y&+31
-        tim
-      NEXT i&
-      GOTO exit_fall.left
-    ENDIF
-  ELSE IF poh&>0
-    PUT x&,y&,palko$(31)
-    CLR poh&
-  ENDIF
-  teraz&=2
-  DO
-    stx&=@joyx
-    ink$=INKEY$
-    ADD y&,g
-    g=MIN((g+0.2),4)
-    IF stx&=-1
-      SUB x&,2
-      m%=miesto%+INT(x&/16)+INT(y&/16)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-      m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-      ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
-    ELSE
-      IF stx&<>0
-        SUB y&,4
-        poh&=1
-        fall.right
-        GOTO exit_fall.left
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-    IF BYTE{m%}<>0
-      IF BYTE{m%}<7
-        CLR poh&
-        y&=INT(y&/16)*16
-        PUT x&,y&,palko$(7)
-        stx&=@joyx
-        GOTO exit_fall.left
-      ENDIF
-      IF BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-    ENDIF
-    m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
-    IF BYTE{m%}<>0
-      IF BYTE{m%}<7
-        CLR poh&
-        y&=INT(y&/16)*16
-        PUT x&,y&,palko$(7)
-        ' stx&=@joyx
-        GOTO exit_fall.left
-      ENDIF
-      IF BYTE{m%}<12
-        pick
-      ENDIF
-      IF BYTE{m%}>11
-        pkill
-      ENDIF
-    ENDIF
-    PUT x&,y&,palko$(31)
-    IF y&>176 OR x&<0
-      scrnext
-    ENDIF
-    tim
-  LOOP
-  exit_fall.left:
-  g=3
+> PROCEDURE scrnext !connecton between screens
+$P>
+LOCAL num&,mem%,a$
+cc&=c&
+IF x&>300
+IF sjvz&(2)=0
+x&=300
+GOTO exit
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CLR x&
+cast&=sjvz&(2)
+GOTO scrnextp
+ENDIF
+ENDIF
+IF x&<0
+IF sjvz&(3)=0
+CLR x&
+GOTO exit_scrnext
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+x&=300
+cast&=sjvz&(3)
+GOTO scrnextp
+ENDIF
+ENDIF
+IF y&>176
+IF sjvz&(1)=0
+y&=176
+GOTO exit_scrnext
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CLR y&
+cast&=sjvz&(1)
+GOTO scrnextp
+ENDIF
+ENDIF
+IF y&<0
+IF sjvz&(0)=0
+CLR y&
+GOTO exit_scrnext
+ELSE
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+y&=176
+cast&=sjvz&(0)
+GOTO scrnextp
+ENDIF
+ENDIF
+scrnextp:
+c&=cast&-1
+IF cast&=11
+newlevel
+GOTO exit_scrnext
+ENDIF
+BMOVE miesto%,miesto%(cc&),260
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
+NEXT i&
+CLR a$
+FOR i&=0 TO 3
+a$=a$+CHR$(sjvz&(i&))
+NEXT i&
+FOR i&=0 TO 2
+a$=a$+CHR$(tele&(i&))
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+a$=a$+MKI$(dd&(i&,ii&))
+NEXT ii&
+NEXT i&
+BMOVE VARPTR(a$),miesto%(cc&)+261,55
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+CLR a$,num&
+testxy
+exit_scrnext:
 RETURN
 '
-PROCEDURE laserold
-  $P<
-  LOCAL aa&,to&
-  IF laser&=0
-    GOTO exit_laser
-  ENDIF
-  PUT x&,y&,palko$(teraz&*7-7)
-  WHILE @joyf<>2 AND @joyy=1
-    ink$=INKEY$
-    ~Delay(1)
-    tim
-  WEND
-  IF @joyf=2
-    DEC laser&
-    IF teraz&=1
-      FOR i&=23 TO 24
-        PUT x&,y&,palko$(i&)
-        ~Delay(5)
-        tim
-      NEXT i&
-      b&=y&+10
-      ' ***********
-      a&=x&+20
-      COLOR 6
-      PCIRCLE a&,b&,2
-      aa&=a&
-      FOR to&=INT(x& DIV 16)+1 TO 20
-        EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
-        FOR i&=1 TO 2
-          ADD a&,8
-          COLOR 6
-          PCIRCLE a&,b&,2
-          COLOR 0
-          PCIRCLE aa&,b&,2
-          aa&=a&
-        NEXT i&
-        tim
-      NEXT to&
-      ' ***********
-      '      FOR to&=INT(x&/16+1) TO 20
-      '       EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
-      '       ADD a&,16
-      '      NEXT to&
-      '      a&=x&+20
-      '      COLOR 6
-      '      PCIRCLE a&,b&,2
-      '      aa&=a&
-      '      FOR a&=x&+20 TO to&*16 STEP 5
-      '      COLOR 6
-      '      PCIRCLE a&,b&,2
-      '      COLOR 0
-      '      PCIRCLE aa&,b&,2
-      '      aa&=a&
-      '    NEXT a&
-      COLOR 0
-      PCIRCLE aa&,b&,2
-      FOR i&=0 TO 20
-        LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
-      NEXT i&
-      ' ' f.1
-      b&=INT(y&/16)*16
-      m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
-      IF BYTE{m%}=2
-        SUB m%,20
-        a&=INT(a&/16)*16
-        b&=INT(b&/16)*16-16
-        WHILE BYTE{m%}=2
-          SUB m%,20
-          SUB b&,16
-        WEND
-        ADD m%,20
-        ADD b&,16
-        WHILE BYTE{m%}=2
-          BYTE{m%}=0
-          ADD m%,20
-          ADD b&,16
-          destroy(a&,b&)
-        WEND
-      ELSE IF BYTE{m%}>14
-        zly&=BYTE{m%}-15
-        ghostkill
-      ENDIF
-    ELSE
-      FOR i&=25 TO 26
-        PUT x&,y&,palko$(i&)
-        ~Delay(5)
-        tim
-      NEXT i&
-      b&=y&+10
-      ' ***********
-      a&=x&+20
-      COLOR 6
-      PCIRCLE a&,b&,2
-      aa&=a&
-      FOR to&=INT(x&/16+1) DOWNTO 0
-        EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
-        FOR i&=1 TO 2
-          SUB a&,8
-          COLOR 6
-          PCIRCLE a&,b&,2
-          COLOR 0
-          PCIRCLE aa&,b&,2
-          aa&=a&
-        NEXT i&
-        tim
-      NEXT to&
-      ' ***********
-      '      FOR to&=INT(x&/16+1) DOWNTO 0
-      '      EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
-      '      SUB a&,16
-      '    NEXT to&
-      '      a&=x&-4
-      '      COLOR 6
-      '      PCIRCLE a&,b&,2
-      '      aa&=a&
-      '      FOR a&=x&+-4 TO (to&+1)*16 STEP -5
-      '      COLOR 6
-      '      PCIRCLE a&,b&,2
-      '      COLOR 0
-      '      PCIRCLE aa&,b&,2
-      '      aa&=a&
-      '    NEXT a&
-      COLOR 0
-      PCIRCLE aa&,b&,2
-      FOR i&=0 TO 20
-        LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
-      NEXT i&
-      ' ' f.1
-      b&=INT(y&/16)*16
-      m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
-      IF BYTE{m%}=2
-        SUB m%,20
-        a&=INT(a&/16)*16
-        b&=INT(b&/16)*16-16
-        WHILE BYTE{m%}=2
-          SUB m%,20
-          SUB b&,16
-        WEND
-        ADD m%,20
-        ADD b&,16
-        WHILE BYTE{m%}=2
-          BYTE{m%}=0
-          ADD m%,20
-          ADD b&,16
-          destroy(a&,b&)
-        WEND
-      ELSE IF BYTE{m%}>14
-        zly&=BYTE{m%}-15
-        ghostkill
-      ENDIF
-    ENDIF
-  ENDIF
-  PUT x&,y&,palko$(teraz&*7-7)
-  inpbufclr
-  exit_laser:
+> PROCEDURE go.right
+$P>
+ADD x&,3
+poh&=-1
+INC obr&
+IF obr&>6
+obr&=1
+ENDIF
+IF x&>300
+scrnext
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
+ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+PUT x&,y&,palko$(obr&)
 RETURN
-PROCEDURE addlaser(x&,y&,vx&,vy&,type|)
-  LOCAL l&
-  INC las.num&                !add new laser
-  IF las.num&>las.max& OR las.num&<0
-    las.num&=0
-  ENDIF
-  l&=las.ptr&(las.num&)
-  las.x&(l&)=x&
-  las.y&(l&)=y&
-  las.lx&(l&)=x&
-  las.ly&(l&)=y&
-  las.vx&(l&)=vx&
-  las.vy&(l&)=vy&
+> PROCEDURE go.left  !Palko ide <-
+$P>
+SUB x&,3
+poh&=-1
+INC obr&
+IF obr&>6
+obr&=1
+ENDIF
+IF x&<0
+scrnext
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16)*20
+ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+PUT x&,y&,palko$(obr&+7)
 RETURN
-PROCEDURE dellaser(num&)
-  LOCAL i&,free&
-  free&=las.ptr&(num&)
-  FOR i&=num& TO las.max&-1     !scroll pointers
-    las.ptr&(i&)=las.ptr&(i&+1)
-  NEXT i&
-  las.ptr&(las.max&)=free&      !last pointer is now free
-  DEC las.num&                  !delete one laser
+> PROCEDURE go.wall !a wall appears in front of Palko
+$P<
+IF teraz&=1
+SUB x&,3
+ELSE
+ADD x&,3
+ENDIF
+RETURN
+> PROCEDURE jump.wall !when wall appears in palko's jump
+$P<
+IF teraz&=1
+SUB x&,2
+ELSE
+ADD x&,2
+ENDIF
+RETURN
+> PROCEDURE turn.right
+$P>
+CLR obr&,poh&
+teraz&=1
+FOR i&=2 TO 0 STEP -1
+PUT x&,y&,palko$(i&+14)
+tim
+NEXT i&
+RETURN
+> PROCEDURE turn.left
+$P>
+CLR obr&,poh&
+teraz&=2
+FOR i&=0 TO 2 STEP 1
+PUT x&,y&,palko$(i&+14)
+tim
+NEXT i&
+RETURN
+> PROCEDURE sword.right
+FOR i&=17 TO 19
+~Delay(1)
+PUT x&,y&,palko$(i&)
+tim
+NEXT i&
+m%=miesto%+INT(x&/16+1.4)+INT(y&/16+1.2)*20
+zly&=BYTE{m%}-15
+IF zly&>-1
+ghostkill
+ENDIF
+PUT x&,y&,palko$(0)
+RETURN
+> PROCEDURE sword.left
+FOR i&=20 TO 22
+~Delay(1)
+PUT x&,y&,palko$(i&)
+tim
+NEXT i&
+m%=miesto%+INT(x&/16-0.4)+INT(y&/16+1.2)*20
+zly&=BYTE{m%}-15
+IF zly&>-1
+ghostkill
+ENDIF
+PUT x&,y&,palko$(7)
+RETURN
+> PROCEDURE jump !how to jump - right or left teraz&=1 or 2
+$P>
+ON teraz& GOSUB jump.right,jump.left
+RETURN
+> PROCEDURE jump.right
+$P>
+teraz&=1
+PUT x&,y&,palko$(27)
+g=4
+WHILE poh&<20 AND @joyy=-1
+stx&=@joyx
+' ink$=INKEY$
+SUB y&,g
+SUB g,0.1
+INC poh&
+IF stx&=1
+ADD x&,2
+ELSE
+IF stx&<>0
+jump.left
+GOTO exit_s.p
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
+m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+pkill
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}<7
+fall.right
+GOTO exit_s.p
+ENDIF
+ENDIF
+INC m%
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+pkill
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}<7
+fall.right
+GOTO exit_s.p
+ENDIF
+ENDIF
+PUT x&,y&,palko$(27)
+IF y&<0 OR x&>300
+scrnext
+ENDIF
+tim
+WEND
+fall.right
+exit_s.p:
+RETURN
+> PROCEDURE jump.left
+$P>
+teraz&=2
+PUT x&,y&,palko$(28)
+g=4
+WHILE poh&<20 AND @joyy=-1
+stx&=@joyx
+' ink$=INKEY$
+SUB y&,g
+SUB g,0.1
+INC poh&
+IF stx&=-1
+SUB x&,2
+ELSE
+IF stx&<>0
+jump.right
+GOTO exit_s.l
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
+m%=miesto%+INT(x&/16)+INT((y&-3)/16)*20
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+pkill
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}<7
+fall.left
+GOTO exit_s.l
+ENDIF
+ENDIF
+INC m%
+IF BYTE{m%}>0
+IF BYTE{m%}>11
+pkill
+ENDIF
+IF BYTE{m%}>6 AND BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}<7
+fall.left
+GOTO exit_s.l
+ENDIF
+ENDIF
+PUT x&,y&,palko$(28)
+IF y&<0 OR x&<0
+scrnext
+ENDIF
+tim
+WEND
+fall.left
+exit_s.l:
+RETURN
+> PROCEDURE fall.right
+$P>
+LOCAL statu&
+IF poh&=0
+m%=miesto%+INT((x&+7)/16)+INT(y&/16+2)*20
+statu&=BYTE{m%}
+IF statu&>0
+ON statu& GOSUB nothing,nothing,destabil,hpn,door,teleport,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+GOTO exit_fall.right
+ENDIF
+IF BYTE{m%-19}=0 AND BYTE{m%-39}=0
+FOR i&=0 TO 3
+ADD x&,2
+PUT x&,y&,palko$(30)
+tim
+NEXT i&
+ELSE
+FOR i&=3 TO 0 STEP -1
+SUB x&,2
+PUT x&,y&,palko$(i&)
+COLOR 0
+PBOX x&+15,y&,x&+17,y&+31
+tim
+NEXT i&
+GOTO exit_fall.right
+ENDIF
+ELSE IF poh&>0
+PUT x&,y&,palko$(30)
+CLR poh&
+ENDIF
+teraz&=1
+DO
+stx&=@joyx
+ink$=INKEY$
+ADD y&,g
+g=MIN((g+0.2),4)
+IF stx&=1
+ADD x&,2
+m%=miesto%+INT(x&/16+1)+INT(y&/16)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
+ELSE
+IF stx&<>0
+SUB y&,4
+poh&=1
+fall.left
+GOTO exit_fall.right
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(0)
+stx&=@joyx
+GOTO exit_fall.right
+ENDIF
+IF BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}>11
+pkill
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(0)
+stx&=@joyx
+GOTO exit_fall.right
+ENDIF
+IF BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}>11
+pkill
+ENDIF
+ENDIF
+PUT x&,y&,palko$(30)
+IF y&>176 OR x&>300
+scrnext
+ENDIF
+tim
+LOOP
+exit_fall.right:
+g=3
+RETURN
+> PROCEDURE fall.left
+$P>
+LOCAL statu&
+IF poh&=0
+m%=miesto%+INT((x&+9)/16)+INT(y&/16+2)*20
+statu&=BYTE{m%}
+IF statu&>0
+ON statu& GOSUB nothing,nothing,destabil,hpn,door,teleport,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+GOTO exit_fall.left
+ENDIF
+IF BYTE{m%-21}=0 AND BYTE{m%-41}=0
+FOR i&=0 TO 3
+SUB x&,2
+PUT x&,y&,palko$(31)
+tim
+NEXT i&
+ELSE
+FOR i&=10 TO 7 STEP -1
+ADD x&,2
+PUT x&,y&,palko$(i&)
+COLOR 0
+PBOX x&-2,y&,x&,y&+31
+tim
+NEXT i&
+GOTO exit_fall.left
+ENDIF
+ELSE IF poh&>0
+PUT x&,y&,palko$(31)
+CLR poh&
+ENDIF
+teraz&=2
+DO
+stx&=@joyx
+ink$=INKEY$
+ADD y&,g
+g=MIN((g+0.2),4)
+IF stx&=-1
+SUB x&,2
+m%=miesto%+INT(x&/16)+INT(y&/16)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+ON BYTE{m%} GOSUB jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,jump.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,nothing,nothing,nothing
+ELSE
+IF stx&<>0
+SUB y&,4
+poh&=1
+fall.right
+GOTO exit_fall.left
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(7)
+stx&=@joyx
+GOTO exit_fall.left
+ENDIF
+IF BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}>11
+pkill
+ENDIF
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+2)*20
+IF BYTE{m%}<>0
+IF BYTE{m%}<7
+CLR poh&
+y&=INT(y&/16)*16
+PUT x&,y&,palko$(7)
+' stx&=@joyx
+GOTO exit_fall.left
+ENDIF
+IF BYTE{m%}<12
+pick
+ENDIF
+IF BYTE{m%}>11
+pkill
+ENDIF
+ENDIF
+PUT x&,y&,palko$(31)
+IF y&>176 OR x&<0
+scrnext
+ENDIF
+tim
+LOOP
+exit_fall.left:
+g=3
+RETURN
+'
+> PROCEDURE laserold
+$P<
+LOCAL aa&,to&
+IF laser&=0
+GOTO exit_laser
+ENDIF
+PUT x&,y&,palko$(teraz&*7-7)
+WHILE @joyf<>2 AND @joyy=1
+ink$=INKEY$
+~Delay(1)
+tim
+WEND
+IF @joyf=2
+DEC laser&
+IF teraz&=1
+FOR i&=23 TO 24
+PUT x&,y&,palko$(i&)
+~Delay(5)
+tim
+NEXT i&
+b&=y&+10
+' ***********
+a&=x&+20
+COLOR 6
+PCIRCLE a&,b&,2
+aa&=a&
+FOR to&=INT(x& DIV 16)+1 TO 20
+EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+FOR i&=1 TO 2
+ADD a&,8
+COLOR 6
+PCIRCLE a&,b&,2
+COLOR 0
+PCIRCLE aa&,b&,2
+aa&=a&
+NEXT i&
+tim
+NEXT to&
+' ***********
+'      FOR to&=INT(x&/16+1) TO 20
+'       EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+'       ADD a&,16
+'      NEXT to&
+'      a&=x&+20
+'      COLOR 6
+'      PCIRCLE a&,b&,2
+'      aa&=a&
+'      FOR a&=x&+20 TO to&*16 STEP 5
+'      COLOR 6
+'      PCIRCLE a&,b&,2
+'      COLOR 0
+'      PCIRCLE aa&,b&,2
+'      aa&=a&
+'    NEXT a&
+COLOR 0
+PCIRCLE aa&,b&,2
+FOR i&=0 TO 20
+LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
+NEXT i&
+' ' f.1
+b&=INT(y&/16)*16
+m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+IF BYTE{m%}=2
+SUB m%,20
+a&=INT(a&/16)*16
+b&=INT(b&/16)*16-16
+WHILE BYTE{m%}=2
+SUB m%,20
+SUB b&,16
+WEND
+ADD m%,20
+ADD b&,16
+WHILE BYTE{m%}=2
+BYTE{m%}=0
+ADD m%,20
+ADD b&,16
+destroy(a&,b&)
+WEND
+ELSE IF BYTE{m%}>14
+zly&=BYTE{m%}-15
+ghostkill
+ENDIF
+ELSE
+FOR i&=25 TO 26
+PUT x&,y&,palko$(i&)
+~Delay(5)
+tim
+NEXT i&
+b&=y&+10
+' ***********
+a&=x&+20
+COLOR 6
+PCIRCLE a&,b&,2
+aa&=a&
+FOR to&=INT(x&/16+1) DOWNTO 0
+EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+FOR i&=1 TO 2
+SUB a&,8
+COLOR 6
+PCIRCLE a&,b&,2
+COLOR 0
+PCIRCLE aa&,b&,2
+aa&=a&
+NEXT i&
+tim
+NEXT to&
+' ***********
+'      FOR to&=INT(x&/16+1) DOWNTO 0
+'      EXIT IF BYTE{miesto%+to&+INT(b&/16+1)*20}<>0
+'      SUB a&,16
+'    NEXT to&
+'      a&=x&-4
+'      COLOR 6
+'      PCIRCLE a&,b&,2
+'      aa&=a&
+'      FOR a&=x&+-4 TO (to&+1)*16 STEP -5
+'      COLOR 6
+'      PCIRCLE a&,b&,2
+'      COLOR 0
+'      PCIRCLE aa&,b&,2
+'      aa&=a&
+'    NEXT a&
+COLOR 0
+PCIRCLE aa&,b&,2
+FOR i&=0 TO 20
+LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
+NEXT i&
+' ' f.1
+b&=INT(y&/16)*16
+m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+IF BYTE{m%}=2
+SUB m%,20
+a&=INT(a&/16)*16
+b&=INT(b&/16)*16-16
+WHILE BYTE{m%}=2
+SUB m%,20
+SUB b&,16
+WEND
+ADD m%,20
+ADD b&,16
+WHILE BYTE{m%}=2
+BYTE{m%}=0
+ADD m%,20
+ADD b&,16
+destroy(a&,b&)
+WEND
+ELSE IF BYTE{m%}>14
+zly&=BYTE{m%}-15
+ghostkill
+ENDIF
+ENDIF
+ENDIF
+PUT x&,y&,palko$(teraz&*7-7)
+inpbufclr
+exit_laser:
+RETURN
+> PROCEDURE addlaser(x&,y&,vx&,vy&,type|)
+LOCAL l&
+INC las.num&                !add new laser
+IF las.num&>las.max& OR las.num&<0
+las.num&=0
+ENDIF
+l&=las.ptr&(las.num&)
+las.x&(l&)=x&
+las.y&(l&)=y&
+las.lx&(l&)=x&
+las.ly&(l&)=y&
+las.vx&(l&)=vx&
+las.vy&(l&)=vy&
+RETURN
+> PROCEDURE dellaser(num&)
+LOCAL i&,free&
+free&=las.ptr&(num&)
+FOR i&=num& TO las.max&-1     !scroll pointers
+las.ptr&(i&)=las.ptr&(i&+1)
+NEXT i&
+las.ptr&(las.max&)=free&      !last pointer is now free
+DEC las.num&                  !delete one laser
 RETURN
 PROCEDURE explode(a&,b&)
-  LOCAL i&,m%
-  FOR i&=0 TO 20
-    LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
-  NEXT i&
-  ' ' f.1
-  b&=INT(y&/16)*16
-  m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
-  IF BYTE{m%}=2         !exploding wall
-    SUB m%,20
-    a&=INT(a&/16)*16
-    b&=INT(b&/16)*16-16
-    WHILE BYTE{m%}=2
-      SUB m%,20
-      SUB b&,16
-    WEND
-    ADD m%,20
-    ADD b&,16
-    WHILE BYTE{m%}=2
-      BYTE{m%}=0
-      ADD m%,20
-      ADD b&,16
-      destroy(a&,b&)
-    WEND
-  ELSE IF BYTE{m%}>14   !ghost
-    zly&=BYTE{m%}-15
-    ghostkill
-  ENDIF
+LOCAL i&,m%
+FOR i&=0 TO 20
+LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
+NEXT i&
+' ' f.1
+b&=INT(y&/16)*16
+m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+IF BYTE{m%}=2         !exploding wall
+SUB m%,20
+a&=INT(a&/16)*16
+b&=INT(b&/16)*16-16
+WHILE BYTE{m%}=2
+SUB m%,20
+SUB b&,16
+WEND
+ADD m%,20
+ADD b&,16
+WHILE BYTE{m%}=2
+BYTE{m%}=0
+ADD m%,20
+ADD b&,16
+destroy(a&,b&)
+WEND
+ELSE IF BYTE{m%}>14   !ghost
+zly&=BYTE{m%}-15
+ghostkill
+ENDIF
 RETURN
-PROCEDURE movelaser
-  LOCAL m%,i&,l&
-  FOR i&=0 TO las.num&
-    l&=las.ptr&(i&)
-    ADD las.x&(l&),las.vx&(l&) !move in specified vector
-    ADD las.y&(l&),las.vy&(l&)
-    '
-    m%= miesto% + INT((las.x&(l&))/16) + INT((las.y&(l&))/16+1) * 20
-    PUT las.x&(l&),las.y&(l&),las.img$(l&)    !new position
-    ' PUT las.lx&(l&),las.ly&(l&),las.img$(l&)  !old position
-    '
-    las.lx&(l&)=las.x&(l&) !save old position
-    las.ly&(l&)=las.y&(l&)
-    IF las.x&(l&)>320 OR las.x&(l&)<-16 OR las.y&(l&)>220 OR las.y&(l&)<-16 OR BYTE{m%}<>0 OR BYTE{m%+1}<>0
-      IF BYTE{m%}<>0
-        COLOR 0
-        PBOX las.x&(l&),las.y&(l&),las.x&(l&)+15,las.y&(l&)+8
-        explode(las.x&(l&),las.y&(l&))
-      ELSE IF BYTE{m%+1}<>0
-        COLOR 0
-        PBOX las.x&(l&),las.y&(l&),las.x&(l&)+15,las.y&(l&)+8
-        explode(las.x&(l&)+16,las.y&(l&))
-      ENDIF
-      dellaser(i&)
-      i&=las.num&+2 !exit
-    ENDIF
-  NEXT i&
-  exit_movelaser:
+> PROCEDURE movelaser
+LOCAL m%,i&,l&
+FOR i&=0 TO las.num&
+l&=las.ptr&(i&)
+ADD las.x&(l&),las.vx&(l&) !move in specified vector
+ADD las.y&(l&),las.vy&(l&)
+'
+m%=miesto%+INT((las.x&(l&))/16)+INT((las.y&(l&))/16+1)*20
+PUT las.x&(l&),las.y&(l&),las.img$(l&)    !new position
+' PUT las.lx&(l&),las.ly&(l&),las.img$(l&)  !old position
+'
+las.lx&(l&)=las.x&(l&) !save old position
+las.ly&(l&)=las.y&(l&)
+'
+' ------- check if laser hit the screen border or an object
+IF las.x&(l&)>320 OR las.x&(l&)<-16 OR las.y&(l&)>220 OR las.y&(l&)<-16 OR BYTE{m%}<>0 OR BYTE{m%+1}<>0
+IF BYTE{m%}<>0
+COLOR 0
+PBOX las.x&(l&),las.y&(l&),las.x&(l&)+15,las.y&(l&)+8
+explode(las.x&(l&),las.y&(l&))
+ELSE IF BYTE{m%+1}<>0
+COLOR 0
+PBOX las.x&(l&),las.y&(l&),las.x&(l&)+15,las.y&(l&)+8
+explode(las.x&(l&)+16,las.y&(l&))
+ENDIF
+dellaser(i&)
+i&=las.num&+2 !exit
+ENDIF
+NEXT i&
+exit_movelaser:
 RETURN
 PROCEDURE firelaser
-  $P<
-  IF laser&<>0 AND las.num&<las.max&
-    PUT x&,y&,palko$(teraz&*7-7)
-    WHILE @joyf<>2 AND @joyy=1
-      ink$=INKEY$
-      ~Delay(1)
-      tim
-    WEND
-    IF @joyf=2
-      DEC laser&
-      IF teraz&=1                 !fire to right side
-        FOR i&=23 TO 24
-          PUT x&,y&,palko$(i&)
-          tim
-          ~Delay(3)
-          tim
-        NEXT i&
-        addlaser(x&+16,y&+14,6,0,0)
-      ELSE                        !fire to left side
-        FOR i&=25 TO 26
-          PUT x&,y&,palko$(i&)
-          tim
-          ~Delay(3)
-          tim
-        NEXT i&
-        addlaser(x&-4,y&+14,-6,0,0)
-      ENDIF
-    ENDIF
-    ' PUT x&,y&,palko$(teraz&*7-7)
-    inpbufclr
-  ENDIF
+$P<
+'
+' -------- IMPORTANT
+' speed of laser is 6 - there shold be 6 blank pixels
+' on each side ofthe projectile
+' -------- IMPORTANT
+'
+IF laser&<>0 AND las.num&<las.max&
+PUT x&,y&,palko$(teraz&*7-7)
+WHILE @joyf<>2 AND @joyy=1
+ink$=INKEY$
+~Delay(1)
+tim
+WEND
+IF @joyf=2
+DEC laser&
+IF teraz&=1                 !fire to right side
+FOR i&=23 TO 24
+PUT x&,y&,palko$(i&)
+tim
+~Delay(3)
+tim
+NEXT i&
+addlaser(x&+16,y&+10,6,0,0)
+ELSE                        !fire to left side
+FOR i&=25 TO 26
+PUT x&,y&,palko$(i&)
+tim
+~Delay(3)
+tim
+NEXT i&
+addlaser(x&-4,y&+10,-6,0,0)
+ENDIF
+ENDIF
+' PUT x&,y&,palko$(teraz&*7-7)
+inpbufclr
+ENDIF
 RETURN
 '
-PROCEDURE makebox !make 2 boxes under Palko
-  $P<
-  m%=miesto%+INT(x&/16)+INT(y&/16-1)*20
-  IF x&<0
-    x&=0
-  ENDIF
-  IF box&<>0 AND BYTE{m%}=0 AND BYTE{m%+1}=0 AND y&>8
-    DEC box&
-    PUT x&,y&,palko$(15) !obrazok palka ako skace
-    FOR i&=0 TO 15
-      SCROLL 0,-1,x&,y&-15,x&+15,y&+31
-    NEXT i&
-    SUB y&,16
-    create(INT(x&/16)*16,INT(y&/16+2)*16,5)
-    create(INT(x&/16+1)*16,INT(y&/16+2)*16,5)
-    m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-    BYTE{m%}=1
-    BYTE{m%+1}=1
-  ENDIF
+> PROCEDURE makebox !make 2 boxes under Palko
+$P<
+m%=miesto%+INT(x&/16)+INT(y&/16-1)*20
+IF x&<0
+x&=0
+ENDIF
+IF box&<>0 AND BYTE{m%}=0 AND BYTE{m%+1}=0 AND y&>8
+DEC box&
+PUT x&,y&,palko$(15) !obrazok palka ako skace
+FOR i&=0 TO 15
+SCROLL 0,-1,x&,y&-15,x&+15,y&+31
+NEXT i&
+SUB y&,16
+create(INT(x&/16)*16,INT(y&/16+2)*16,5)
+create(INT(x&/16+1)*16,INT(y&/16+2)*16,5)
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+BYTE{m%}=1
+BYTE{m%+1}=1
+ENDIF
 RETURN
-PROCEDURE create(a&,b&,type&)
-  LOCAL i&
-  FOR i&=6 TO 8
-    PUT a&,b&,vec$(i&)
-    ~Delay(1)
-    tim
-  NEXT i&
-  PUT a&,b&,vec$(type&)
+> PROCEDURE create(a&,b&,type&)
+LOCAL i&
+FOR i&=6 TO 8
+PUT a&,b&,vec$(i&)
+~Delay(1)
+tim
+NEXT i&
+PUT a&,b&,vec$(type&)
 RETURN
-PROCEDURE destroy(a&,b&)
-  LOCAL i&
-  FOR i&=6 TO 8
-    PUT a&,b&,vec$(i&)
-    ~Delay(1)
-  NEXT i&
-  COLOR 0
-  PBOX a&,b&,a&+15,b&+15
+> PROCEDURE destroy(a&,b&) ! animation of an explosion
+LOCAL i&
+FOR i&=6 TO 8 ! animate
+PUT a&,b&,vec$(i&)
+~Delay(1)
+NEXT i&
+COLOR 0
+PBOX a&,b&,a&+15,b&+15
 RETURN
-PROCEDURE ghostkill
-  $P<
-  DEC dd&(zly&,3)
-  IF dd&(zly&,3)=0
-    vystrek(dd&(zly&,2),dd&(zly&,1)+10,7,6)
-    ' PUT dd&(zly&,2),dd&(zly&,1),palko$(29)
-    ' ~Delay(5)
-    COLOR 0
-    PBOX dd&(zly&,2),dd&(zly&,1),dd&(zly&,2)+15,dd&(zly&,1)+31
-    ADD body%,dd&(zly&,4)
-    dd&(zly&,5)=0
-    m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
-    BYTE{m%}=0
-  ENDIF
-  tim
-RETURN
-'
-PROCEDURE tim !casovac pohybovania duchmi
-  $P>
-  movelaser
-  IF las.num&<0
-    ~Delay(1)
-  ENDIF
-  cas&=-cas&
-  IF cas&=1
-    m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
-    IF BYTE{m%}>14
-      pkill
-    ENDIF
-    m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
-    IF BYTE{m%}>14
-      pkill
-    ENDIF
-    GOTO exit_tim
-  ENDIF
-  INC zpoh&
-  IF zpoh&>2
-    zpoh&=0
-  ENDIF
-  FOR zly&=0 TO 2
-    ON SGN(dd&(zly&,5))+2 GOSUB ghost.left,nothing,ghost.right
-  NEXT zly&
-  exit_tim:
-RETURN
-PROCEDURE ghost.right
-  $P>
-  IF dd&(zly&,3)<>255
-    m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
-    BYTE{m%}=0
-    BYTE{m%-20}=0
-    dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
-    IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
-      dd&(zly&,5)=-dd&(zly&,5)
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
-    ELSE
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
-    ENDIF
-    m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
-    BYTE{m%}=zly&+15
-  ELSE
-    dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
-    IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
-      dd&(zly&,5)=-dd&(zly&,5)
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
-    ELSE
-      PUT dd(zly,2),dd(zly,1),duch$(zpoh+dd(zly,0)*6)
-    ENDIF
-  ENDIF
-RETURN
-PROCEDURE ghost.left
-  $P>
-  IF dd&(zly&,3)<>255
-    m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
-    BYTE{m%}=0
-    BYTE{m%-20}=0
-    dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
-    IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
-      dd&(zly&,5)=-dd&(zly&,5)
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
-    ELSE
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
-    ENDIF
-    m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
-    BYTE{m%}=zly&+15
-  ELSE
-    dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
-    IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
-      dd&(zly&,5)=-dd&(zly&,5)
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
-    ELSE
-      PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
-    ENDIF
-  ENDIF
+> PROCEDURE ghostkill
+$P<
+DEC dd&(zly&,3)
+IF dd&(zly&,3)=0
+vystrek(dd&(zly&,2),dd&(zly&,1)+10,7,6)
+' PUT dd&(zly&,2),dd&(zly&,1),palko$(29)
+' ~Delay(5)
+COLOR 0
+PBOX dd&(zly&,2),dd&(zly&,1),dd&(zly&,2)+15,dd&(zly&,1)+31
+ADD body%,dd&(zly&,4)
+dd&(zly&,5)=0
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+ENDIF
 RETURN
 '
-PROCEDURE pkill   !(status=) zabitie palka
-  $P>
-  num&=BYTE{m%}
-  SELECT num&
-  CASE 12
-    FOR i&=32 TO 35
-      PUT x&,y&,palko$(i&)
-      ~Delay(3)
-    NEXT i&
-    ~Delay(10)
-    FOR i&=35 TO 39
-      PUT x&,y&,palko$(i&)
-      ~Delay(4)
-    NEXT i&
-    ~Delay(50)
-  CASE 13
-    y&=INT(y&/16)*16
-    FOR i&=40 TO 43
-      ~Delay(4)
-      PUT x&,y&,palko$(i&)
-    NEXT i&
-    FOR i&=0 TO 16
-      SCROLL 0,-1,x&,y&,x&+15,y&+31
-      ~Delay(3)
-    NEXT i&
-    COLOR 0
-    PBOX x&,y&,x&+15,y&+31
-  CASE 14
-    COLOR 0
-    PBOX x&,y&,x&+15,y&+5
-    GET x&,y&+32,x&+15,y&+63,array$
-    PUT x&,y&,palko$(44)
-    FOR i&=44 TO 46
-      ADD y&,5
-      PUT x&,y&,palko$(i&)
-      ~Delay(4)
-    NEXT i&
-    ~Delay(50)
-    COLOR 0
-    PBOX x&,y&,x&+15,y&+31
-    PUT x&,y&+17,array$
-  CASE 15,16,17
-    FOR i&=0 TO 7
-      PUT x&,y&,palko$(15)
-      ~Delay(5)
-      PUT x&,y&,palko$(29)
-      ~Delay(5)
-    NEXT i&
-    ~Delay(10)
-    COLOR 0
-    PBOX x&,y&,x&+15,y&+31
-  ENDSELECT
-  f.3
-  DEC life&
-  x&=isx&
-  y&=isy&
-  IF life&>0
-    testxy
-    PUT x&,y&,palko$(teraz&*7-7)
-    f.2
-  ENDIF
+> PROCEDURE tim ! scheduler of ghosts and laser animations
+$P>
+movelaser
+IF las.num&<0
+~Delay(1)
+ENDIF
+cas&=-cas&
+IF cas&=1
+m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+IF BYTE{m%}>14
+pkill
+ENDIF
+m%=miesto%+INT(x&/16+1)+INT(y&/16+1)*20
+IF BYTE{m%}>14
+pkill
+ENDIF
+GOTO exit_tim
+ENDIF
+INC zpoh&
+IF zpoh&>2
+zpoh&=0
+ENDIF
+FOR zly&=0 TO 2
+ON SGN(dd&(zly&,5))+2 GOSUB ghost.left,nothing,ghost.right
+NEXT zly&
+exit_tim:
 RETURN
-PROCEDURE teleport  !(status=)
-  $P<
-  LOCAL dd%
-  cc&=c&
-  PUT x&,y&,palko$(15)
-  ~Delay(3)
-  FOR i&=47 TO 49
-    PUT x&,y&,palko$(i&)
-    ~Delay(3)
-    tim
-  NEXT i&
-  COLOR 0
-  PBOX x&,y&,x&+15,y&+31
-  c&=tele&(0)
-  cast&=c&+1
-  x&=tele&(1)*16
-  y&=tele&(2)*16
-  IF cast&=11
-    newlevel
-  ENDIF
-  IF cc&<>c&
-    f.3
-  ENDIF
-  BMOVE miesto%,miesto%(cc&),260
-  FOR i&=0 TO 2
-    BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
-  NEXT i&
-  CLR a$
-  FOR i&=0 TO 3
-    a$=a$+CHR$(sjvz&(i&))
-  NEXT i&
-  FOR i&=0 TO 2
-    a$=a$+CHR$(tele&(i&))
-  NEXT i&
-  FOR i&=0 TO 2
-    FOR ii&=0 TO 7
-      a$=a$+MKI$(dd&(i&,ii&))
-    NEXT ii&
-  NEXT i&
-  BMOVE @sadd(a$),(miesto%(cc&)+261),55
-  BMOVE miesto%(c&),miesto%,260
-  num&=BYTE{miesto%(c&)+260}
-  isy&=INT(num&/20)
-  isx&=num&-isy&*20
-  MUL isx&,16
-  MUL isy&,16
-  mem%=miesto%(c&)+261
-  CLR num&,a$
-  FOR i&=0 TO 3
-    sjvz&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    tele&(i&)=BYTE{mem%+num&}
-    INC num&
-  NEXT i&
-  FOR i&=0 TO 2
-    FOR ii&=0 TO 7
-      dd&(i&,ii&)=WORD{mem%+num&}
-      ADD num&,2
-    NEXT ii&
-  NEXT i&
-  FOR i&=0 TO 2
-    BMOVE obrmem%(c&,i&),bit%(0,i&),8480
-  NEXT i&
-  CLR num&,a$
-  IF cc&<>c&
-    f.2
-  ENDIF
-  testxy
-  FOR i&=49 TO 47 STEP -1
-    PUT x&,y&,palko$(i&)
-    ~Delay(5)
-    tim
-  NEXT i&
-  PUT x&,y&,palko$(15)
-  ~Delay(5)
-  PUT x&,y&,palko$(teraz&*7-7)
+> PROCEDURE ghost.right
+$P>
+IF dd&(zly&,3)<>255
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+BYTE{m%-20}=0
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ENDIF
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=zly&+15
+ELSE
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ELSE
+PUT dd(zly,2),dd(zly,1),duch$(zpoh+dd(zly,0)*6)
+ENDIF
+ENDIF
 RETURN
-PROCEDURE destabil  !(status=3) zavazovacie policka
-  $P<
-  IF obr&<>0
-    SCROLL 0,2,x&-3,y&,x&+18,y&+47
-    SCROLL 0,-2,x&-3,y&,x&+18,y&+47
-    tim
-  ELSE
-    FOR i&=0 TO 3
-      tim
-      SCROLL 0,1,x&,y&,x&+15,y&+47
-    NEXT i&
-    FOR i&=0 TO 3
-      tim
-      SCROLL 0,-1,x&,y&,x&+15,y&+47
-    NEXT i&
-    PUT x&,y&,palko$(teraz&*7-7)
-  ENDIF
-RETURN
-PROCEDURE hpn    !(status=) horia pod nohami
-  $P<
-  m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
-  IF BYTE{m%}=4
-    BYTE{m%}=0
-    a&=INT(x&/16)*16
-    b&=INT(y&/16+2)*16
-    tim
-    COLOR 0
-    PBOX a&,b&,a&+15,b&+15
-    tim
-  ENDIF
-RETURN
-PROCEDURE pick   !(status=<7,11>) zober predmet
-  $P<
-  num&=BYTE{m%}
-  my&=INT((m%-miesto%)/20)
-  mx&=(m%-miesto%)-my&*20
-  MUL mx&,16
-  MUL my&,16
-  COLOR 0
-  PBOX mx&,my&,mx&+15,my&+15
-  SELECT num&
-  CASE 7
-    INC life&
-  CASE 8
-    INC laser&
-  CASE 9
-    INC box&
-  CASE 10
-    INC key&
-    IF cast&=10 AND level&=topleve&
-      finalgot&=1
-    ENDIF
-  CASE 11
-    ADD body%,100
-  ENDSELECT
-  BYTE{m%}=0
-RETURN
-PROCEDURE door  !(status=)
-  $P<
-  IF key&>0
-    BYTE{m%}=1
-    DEC key&
-    IF BYTE{m%-21}=1
-      BYTE{m%-21}=0
-      BYTE{m%-22}=0
-      BYTE{m%-41}=0
-      BYTE{m%-42}=0
-      BYTE{m%-61}=0
-      BYTE{m%-62}=0
-      a&=(INT(x&/16)-2)*16
-      b&=(INT(y&/16)-1)*16
-      FOR i&=0 TO 47
-        SCROLL 0,-1,a&,b&,a&+31,b&+47
-      NEXT i&
-    ELSE IF BYTE{m%-19}=1
-      BYTE{m%-19}=0
-      BYTE{m%-18}=0
-      BYTE{m%-39}=0
-      BYTE{m%-38}=0
-      BYTE{m%-59}=0
-      BYTE{m%-58}=0
-      a&=(INT(x&/16)+2)*16
-      b&=(INT(y&/16)-1)*16
-      FOR i&=0 TO 47
-        SCROLL 0,-1,a&,b&,a&+31,b&+47
-      NEXT i&
-    ENDIF
-  ENDIF
+> PROCEDURE ghost.left
+$P>
+IF dd&(zly&,3)<>255
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=0
+BYTE{m%-20}=0
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ENDIF
+m%=miesto%+INT(dd&(zly&,2)/16+0.5)+INT(dd&(zly&,1)/16+1.3)*20
+BYTE{m%}=zly&+15
+ELSE
+dd&(zly&,2)=dd&(zly&,2)+dd&(zly&,5)
+IF dd&(zly&,2)<dd&(zly&,7) OR dd&(zly&,2)>dd&(zly&,6)
+dd&(zly&,5)=-dd&(zly&,5)
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+dd&(zly&,0)*6)
+ELSE
+PUT dd&(zly&,2),dd&(zly&,1),duch$(zpoh&+3+dd&(zly&,0)*6)
+ENDIF
+ENDIF
 RETURN
 '
-PROCEDURE gamestatus !ak stlacim HELP pocas hry
-  $P<
-  f.3
-  FOR i&=0 TO 2
-    BMOVE bit%(0,i&),obrmem%(c&,i&),8480
-  NEXT i&
-  CLEARW #1
-  COLOR 7
-  BOX 0,0,319,211
-  COLOR 3
-  BOX 1,1,318,210
-  COLOR 6
-  BOX 2,2,317,209
-  f.2
-  COLOR 3
-  FOR i&=0 TO 20
-    LINE 220-i&*5,220-i&*5,320,220-i&*5
-    LINE 220+i&*5,60+i&*5,220+i&*5,220
-  NEXT i&
-  '
-  pis2(70,18,"-GAME STATUS.-",1,5)
-  pis2(4,47,"your score - "+STR$(body%),6,3)
-  pis(4,63,"<ivoty:",3)
-  pis(4,95,"laser:",3)
-  pis(4,127,"fixa[n= hmota:",3)
-  pis(4,159,"k;^[e:",3)
-  pis2(222,180,code$(level&-1),7,6)
-  '
-  FOR i&=0 TO MIN(life&-1,25)
-    PUT i&*8+4,64,vec$(0)
-  NEXT i&
-  FOR i&=0 TO MIN(laser&-1,25)
-    PUT i&*8+4,96,vec$(1)
-  NEXT i&
-  FOR i&=0 TO MIN(box&-1,25)
-    PUT i&*8+4,128,vec$(2)
-  NEXT i&
-  FOR i&=0 TO MIN(key&-1,25)
-    PUT i&*8+4,160,vec$(3)
-  NEXT i&
-  WHILE STRIG(3)=FALSE AND INKEY$=""
-  WEND
-  WHILE INKEY$<>""
-  WEND
-  CLR ink$
-  f.3
-  FOR i&=0 TO 2
-    BMOVE obrmem%(c&,i&),bit%(0,i&),8480
-  NEXT i&
-  f.2
+> PROCEDURE pkill   !(status=) zabitie palka
+$P>
+num&=BYTE{m%}
+SELECT num&
+CASE 12
+FOR i&=32 TO 35
+PUT x&,y&,palko$(i&)
+~Delay(3)
+NEXT i&
+~Delay(10)
+FOR i&=35 TO 39
+PUT x&,y&,palko$(i&)
+~Delay(4)
+NEXT i&
+~Delay(50)
+CASE 13
+y&=INT(y&/16)*16
+FOR i&=40 TO 43
+~Delay(4)
+PUT x&,y&,palko$(i&)
+NEXT i&
+FOR i&=0 TO 16
+SCROLL 0,-1,x&,y&,x&+15,y&+31
+~Delay(3)
+NEXT i&
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+CASE 14
+COLOR 0
+PBOX x&,y&,x&+15,y&+5
+GET x&,y&+32,x&+15,y&+63,array$
+PUT x&,y&,palko$(44)
+FOR i&=44 TO 46
+ADD y&,5
+PUT x&,y&,palko$(i&)
+~Delay(4)
+NEXT i&
+~Delay(50)
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+PUT x&,y&+17,array$
+CASE 15,16,17
+FOR i&=0 TO 7
+PUT x&,y&,palko$(15)
+~Delay(5)
+PUT x&,y&,palko$(29)
+~Delay(5)
+NEXT i&
+~Delay(10)
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+ENDSELECT
+f.3
+DEC life&
+x&=isx&
+y&=isy&
+IF life&>0
+testxy
+PUT x&,y&,palko$(teraz&*7-7)
+f.2
+ENDIF
 RETURN
-PROCEDURE devilinfo !textik kto,co,ako
-  $P<
-  f.0
-  inpbufclr
-  CLR a$,num&,m%,stx&
-  OPEN "i",#1,"DEVIL:text"
-  INPUT #1,num&
-  DIM a$(num&),aaa&(num&)
-  FOR i&=0 TO num&
-    INPUT #1,aaa&(i&),a$(i&)
-  NEXT i&
-  CLOSE #1
-  CLEARW #1
-  COLOR 1
-  f.2
-  ink$=INKEY$
-  WHILE stx&=0 AND ink$=""
-    ink$=INKEY$
-    CLR stx&
-    pis(0,208,a$(m%),aaa&(m%))
-    INC m%
-    IF m%>num&
-      FOR i&=150 TO 0 STEP -1
-        SETCOLOR 1,i&/10,i&/10,i&/10
-      NEXT i&
-      CLR m%
-      CLEARW #1
-      FOR i&=0 TO 9
-        pis(0,(i&+1)*16,STR$(i&+1),6)
-        pis(32,(i&+1)*16,mm$(i&),6)
-        pis(220,(i&+1)*16,STR$(sco%(i&)),6)
-      NEXT i&
-      CLR stx&
-      FOR i&=0 TO 4000
-        ~Delay(2)
-        ADD stx&,ABS(STRIG(3))
-        IF stx&>0
-          i&=4000
-        ENDIF
-      NEXT i&
-      CLEARW #1
-      FOR i&=0 TO 150
-        SETCOLOR 1,i&/10,i&/10,i&/10
-      NEXT i&
-    ENDIF
-    del%=LEN(a$(ABS(m%-1)))*0.18
-    FOR i&=0 TO 15
-      SCROLL 0,-1,0,0,320,256
-      ~Delay(del%)
-      ADD stx&,ABS(STRIG(3))
-    NEXT i&
-  WEND
-  f.3
-  ERASE a$(),aaa&()
-  FOR i&=0 TO 2
-    BMOVE obrmem%(0,i&),bit%(0,i&),8480
-  NEXT i&
-  f.4
+> PROCEDURE teleport  !(status=)
+$P<
+LOCAL dd%
+cc&=c&
+PUT x&,y&,palko$(15)
+~Delay(3)
+FOR i&=47 TO 49
+PUT x&,y&,palko$(i&)
+~Delay(3)
+tim
+NEXT i&
+COLOR 0
+PBOX x&,y&,x&+15,y&+31
+c&=tele&(0)
+cast&=c&+1
+x&=tele&(1)*16
+y&=tele&(2)*16
+IF cast&=11
+newlevel
+ENDIF
+IF cc&<>c&
+f.3
+ENDIF
+BMOVE miesto%,miesto%(cc&),260
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(cc&,i&),8480
+NEXT i&
+CLR a$
+FOR i&=0 TO 3
+a$=a$+CHR$(sjvz&(i&))
+NEXT i&
+FOR i&=0 TO 2
+a$=a$+CHR$(tele&(i&))
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+a$=a$+MKI$(dd&(i&,ii&))
+NEXT ii&
+NEXT i&
+BMOVE @sadd(a$),(miesto%(cc&)+261),55
+BMOVE miesto%(c&),miesto%,260
+num&=BYTE{miesto%(c&)+260}
+isy&=INT(num&/20)
+isx&=num&-isy&*20
+MUL isx&,16
+MUL isy&,16
+mem%=miesto%(c&)+261
+CLR num&,a$
+FOR i&=0 TO 3
+sjvz&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+tele&(i&)=BYTE{mem%+num&}
+INC num&
+NEXT i&
+FOR i&=0 TO 2
+FOR ii&=0 TO 7
+dd&(i&,ii&)=WORD{mem%+num&}
+ADD num&,2
+NEXT ii&
+NEXT i&
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+CLR num&,a$
+IF cc&<>c&
+f.2
+ENDIF
+testxy
+FOR i&=49 TO 47 STEP -1
+PUT x&,y&,palko$(i&)
+~Delay(5)
+tim
+NEXT i&
+PUT x&,y&,palko$(15)
+~Delay(5)
+PUT x&,y&,palko$(teraz&*7-7)
 RETURN
-PROCEDURE options !not included yet
-  $P<
-  win(0,0,320,208,15)
-  f.1
-  WHILE STRIG(3)=TRUE
-  WEND
-  WHILE STRIG(3)=FALSE
-  WEND
-  f.3
-  FOR i&=0 TO 2
-    BMOVE obrmem%(0,i&),bit%(0,i&),8480
-  NEXT i&
-  f.4
+> PROCEDURE destabil  !(status=3) zavazovacie policka
+$P<
+IF obr&<>0
+SCROLL 0,2,x&-3,y&,x&+18,y&+47
+SCROLL 0,-2,x&-3,y&,x&+18,y&+47
+tim
+ELSE
+FOR i&=0 TO 3
+tim
+SCROLL 0,1,x&,y&,x&+15,y&+47
+NEXT i&
+FOR i&=0 TO 3
+tim
+SCROLL 0,-1,x&,y&,x&+15,y&+47
+NEXT i&
+PUT x&,y&,palko$(teraz&*7-7)
+ENDIF
 RETURN
-PROCEDURE winner !ked uz nie su dalsie levely
-  $P<
-  f.0
-  CLEARW #1
-  file%=Open(@sadd("DEVIL:vyh.obr"),1005)
-  IF file%=0
-    gameerror
-  ENDIF
-  FOR i&=0 TO 2
-    long%=Read(file%,bit%(0,i&),8480)
-  NEXT i&
-  ~Close(file%)
-  COLOR 0
-  BOX 0,0,319,211
-  f.4
-  ~Delay(100)
-  FOR i&=30 TO -16 STEP -2
-    PUT 90,i&,vec$(11)
-    ~Delay(1)
-  NEXT i&
-  ~Delay(100)
-  hof
+> PROCEDURE hpn    !(status=) horia pod nohami
+$P<
+m%=miesto%+INT(x&/16)+INT(y&/16+2)*20
+IF BYTE{m%}=4
+BYTE{m%}=0
+a&=INT(x&/16)*16
+b&=INT(y&/16+2)*16
+tim
+COLOR 0
+PBOX a&,b&,a&+15,b&+15
+tim
+ENDIF
 RETURN
-PROCEDURE hof !umiestnenie v hi-scores
-  $P<
-  WHILE INKEY$<>""
-  WEND
-  f.0
-  CLEARW #1
-  IF body%>sco%(9)
-    f.2
-    pis(50,16,"ENTER YOUR NAME",6)
-    CLR a$,ink$
-    WHILE ink$<>CHR$(13)
-      ink$=INKEY$
-      IF ink$<>CHR$(13) AND ink$<>CHR$(8) AND ink$<>"" AND LEN(a$)<16
-        a$=a$+ink$
-        pis(48,40,a$,6)
-      ELSE IF ink$=CHR$(8) AND ink$<>"" AND LEN(a$)>0
-        a$=LEFT$(a$,LEN(a$)-1)
-        pis(48,40,a$+STRING$(5,32),6)
-      ENDIF
-    WEND
-    a$=LEFT$(a$+STRING$(18,32),18)
-    FOR i&=0 TO 9
-      EXIT IF sco%(i&)<=body%
-    NEXT i&
-    FOR ii&=9 TO i&+1 STEP -1
-      sco%(ii&)=sco%(ii&-1)
-      mm$(ii&)=mm$(ii&-1)
-    NEXT ii&
-    mm$(i&)=a$
-    sco%(i&)=body%
-    CLEARW #1
-    WHILE INKEY$<>"" OR MOUSEK<>0
-    WEND
-    FOR i&=0 TO 9
-      pis(0,(i&+1)*16,STR$(i&+1),6)
-      pis(32,(i&+1)*16,mm$(i&),6)
-      pis(220,(i&+1)*16,STR$(sco%(i&)),6)
-    NEXT i&
-    i&=150
-    ii&=-1
-    pis(0,192,"press fire to continue or",3)
-    pis(0,208,"left mousebotton to save hiscores",3)
-    WHILE @joyf=0 AND ink$=""
-      ink$=INKEY$
-      IF MOUSEK<>0
-        OPEN "o",#1,"HiScores"
-        FOR i&=0 TO 9
-          WRITE #1,sco%(i&),mm$(i&)
-        NEXT i&
-        CLOSE #1
-        WHILE MOUSEK<>0
-        WEND
-        ~ScreenToFront(scr%(0))
-      ENDIF
-      ADD i&,ii&
-      IF i&=150 OR i&=0
-        ii&=-ii&
-        ADD i&,ii&
-      ENDIF
-      SETCOLOR 6,15,i&/10,0
-      ~Delay(1)
-    WEND
-  ENDIF
+> PROCEDURE pick   !(status=<7,11>) zober predmet
+$P<
+num&=BYTE{m%}
+my&=INT((m%-miesto%)/20)
+mx&=(m%-miesto%)-my&*20
+MUL mx&,16
+MUL my&,16
+COLOR 0
+PBOX mx&,my&,mx&+15,my&+15
+SELECT num&
+CASE 7
+INC life&
+CASE 8
+INC laser&
+CASE 9
+INC box&
+CASE 10
+INC key&
+IF cast&=10 AND level&=topleve&
+finalgot&=1
+ENDIF
+CASE 11
+ADD body%,100
+ENDSELECT
+BYTE{m%}=0
 RETURN
-'
-PROCEDURE font(rp%,font$,height%,flags%) !nacitanie font
-  $P<
-  LOCAL libname$,diskfontbase%,font%
-  libname$="diskfont.library"+CHR$(0)
-  diskfontbase%=OpenLibrary(VARPTR(libname$),0)
-  textattr%=AllocMem(100,65537)
-  font$=font$+".font"+CHR$(0)
-  {textattr%}=VARPTR(font$)
-  CARD{textattr%+4}=height%
-  BYTE{textattr%+6}=0
-  BYTE{textattr%+7}=flags%
-  font%=OpenDiskFont(textattr%)
-  ~SetFont(rp%,font%)
-  ~CloseLibrary(diskfontbase%)
-  ~CloseFont(font%)
-  ~FreeMem(textattr%,100)
-RETURN
-PROCEDURE pis(x%,y%,text$,a%) !pise farebne x,y,text,farba
-  $P<
-  ~SetAPen(wrp%(0),a%)
-  ~Move(wrp%(0),x%,y%)
-  ~Text(wrp%(0),VARPTR(text$),LEN(text$))
-RETURN
-PROCEDURE pis2(x%,y%,text$,a%,b%) !pise kombinovane a,b
-  $P<
-  ~SetDrMd(wrp%(0),0)
-  pis(x%,y%,text$,a%)
-  pis(x%+1,y%+1,text$,b%)
-  ~SetDrMd(wrp%(0),1)
+> PROCEDURE door  !(status=)
+$P<
+IF key&>0
+BYTE{m%}=1
+DEC key&
+IF BYTE{m%-21}=1
+BYTE{m%-21}=0
+BYTE{m%-22}=0
+BYTE{m%-41}=0
+BYTE{m%-42}=0
+BYTE{m%-61}=0
+BYTE{m%-62}=0
+a&=(INT(x&/16)-2)*16
+b&=(INT(y&/16)-1)*16
+FOR i&=0 TO 47
+SCROLL 0,-1,a&,b&,a&+31,b&+47
+NEXT i&
+ELSE IF BYTE{m%-19}=1
+BYTE{m%-19}=0
+BYTE{m%-18}=0
+BYTE{m%-39}=0
+BYTE{m%-38}=0
+BYTE{m%-59}=0
+BYTE{m%-58}=0
+a&=(INT(x&/16)+2)*16
+b&=(INT(y&/16)-1)*16
+FOR i&=0 TO 47
+SCROLL 0,-1,a&,b&,a&+31,b&+47
+NEXT i&
+ENDIF
+ENDIF
 RETURN
 '
+> PROCEDURE gamestatus !ak stlacim HELP pocas hry
+$P<
+f.3
+FOR i&=0 TO 2
+BMOVE bit%(0,i&),obrmem%(c&,i&),8480
+NEXT i&
+CLEARW #1
+COLOR 7
+BOX 0,0,319,211
+COLOR 3
+BOX 1,1,318,210
+COLOR 6
+BOX 2,2,317,209
+f.2
+COLOR 3
+FOR i&=0 TO 20
+LINE 220-i&*5,220-i&*5,320,220-i&*5
+LINE 220+i&*5,60+i&*5,220+i&*5,220
+NEXT i&
+'
+pis2(70,18,"-GAME STATUS.-",1,5)
+pis2(4,47,"your score - "+STR$(body%),6,3)
+pis(4,63,"<ivoty:",3)
+pis(4,95,"laser:",3)
+pis(4,127,"fixa[n= hmota:",3)
+pis(4,159,"k;^[e:",3)
+pis2(222,180,code$(level&-1),7,6)
+'
+FOR i&=0 TO MIN(life&-1,25)
+PUT i&*8+4,64,vec$(0)
+NEXT i&
+FOR i&=0 TO MIN(laser&-1,25)
+PUT i&*8+4,96,vec$(1)
+NEXT i&
+FOR i&=0 TO MIN(box&-1,25)
+PUT i&*8+4,128,vec$(2)
+NEXT i&
+FOR i&=0 TO MIN(key&-1,25)
+PUT i&*8+4,160,vec$(3)
+NEXT i&
+WHILE STRIG(3)=FALSE AND INKEY$=""
+WEND
+WHILE INKEY$<>""
+WEND
+CLR ink$
+f.3
+FOR i&=0 TO 2
+BMOVE obrmem%(c&,i&),bit%(0,i&),8480
+NEXT i&
+f.2
+RETURN
+> PROCEDURE devilinfo !textik kto,co,ako
+$P<
+f.0
+inpbufclr
+CLR a$,num&,m%,stx&
+OPEN "i",#1,"DEVIL:text"
+INPUT #1,num&
+DIM a$(num&),aaa&(num&)
+FOR i&=0 TO num&
+INPUT #1,aaa&(i&),a$(i&)
+NEXT i&
+CLOSE #1
+CLEARW #1
+COLOR 1
+f.2
+ink$=INKEY$
+WHILE stx&=0 AND ink$=""
+ink$=INKEY$
+CLR stx&
+pis(0,208,a$(m%),aaa&(m%))
+INC m%
+IF m%>num&
+FOR i&=150 TO 0 STEP -1
+SETCOLOR 1,i&/10,i&/10,i&/10
+NEXT i&
+CLR m%
+CLEARW #1
+FOR i&=0 TO 9
+pis(0,(i&+1)*16,STR$(i&+1),6)
+pis(32,(i&+1)*16,mm$(i&),6)
+pis(220,(i&+1)*16,STR$(sco%(i&)),6)
+NEXT i&
+CLR stx&
+FOR i&=0 TO 4000
+~Delay(2)
+ADD stx&,ABS(STRIG(3))
+IF stx&>0
+i&=4000
+ENDIF
+NEXT i&
+CLEARW #1
+FOR i&=0 TO 150
+SETCOLOR 1,i&/10,i&/10,i&/10
+NEXT i&
+ENDIF
+del%=LEN(a$(ABS(m%-1)))*0.18
+FOR i&=0 TO 15
+SCROLL 0,-1,0,0,320,256
+~Delay(del%)
+ADD stx&,ABS(STRIG(3))
+NEXT i&
+WEND
+f.3
+ERASE a$(),aaa&()
+FOR i&=0 TO 2
+BMOVE obrmem%(0,i&),bit%(0,i&),8480
+NEXT i&
+f.4
+RETURN
+> PROCEDURE options !not included yet
+$P<
+win(0,0,320,208,15)
+f.1
+WHILE STRIG(3)=TRUE
+WEND
+WHILE STRIG(3)=FALSE
+WEND
+f.3
+FOR i&=0 TO 2
+BMOVE obrmem%(0,i&),bit%(0,i&),8480
+NEXT i&
+f.4
+RETURN
+> PROCEDURE winner !ked uz nie su dalsie levely
+$P<
+f.0
+CLEARW #1
+file%=Open(@sadd("DEVIL:vyh.obr"),1005)
+IF file%=0
+gameerror
+ENDIF
+FOR i&=0 TO 2
+long%=Read(file%,bit%(0,i&),8480)
+NEXT i&
+~Close(file%)
+COLOR 0
+BOX 0,0,319,211
+f.4
+~Delay(100)
+FOR i&=30 TO -16 STEP -2
+PUT 90,i&,vec$(11)
+~Delay(1)
+NEXT i&
+~Delay(100)
+hof
+RETURN
+> PROCEDURE hof !umiestnenie v hi-scores
+$P<
+WHILE INKEY$<>""
+WEND
+f.0
+CLEARW #1
+IF body%>sco%(9)
+f.2
+pis(50,16,"ENTER YOUR NAME",6)
+CLR a$,ink$
+WHILE ink$<>CHR$(13)
+ink$=INKEY$
+IF ink$<>CHR$(13) AND ink$<>CHR$(8) AND ink$<>"" AND LEN(a$)<16
+a$=a$+ink$
+pis(48,40,a$,6)
+ELSE IF ink$=CHR$(8) AND ink$<>"" AND LEN(a$)>0
+a$=LEFT$(a$,LEN(a$)-1)
+pis(48,40,a$+STRING$(5,32),6)
+ENDIF
+WEND
+a$=LEFT$(a$+STRING$(18,32),18)
+FOR i&=0 TO 9
+EXIT IF sco%(i&)<=body%
+NEXT i&
+FOR ii&=9 TO i&+1 STEP -1
+sco%(ii&)=sco%(ii&-1)
+mm$(ii&)=mm$(ii&-1)
+NEXT ii&
+mm$(i&)=a$
+sco%(i&)=body%
+CLEARW #1
+WHILE INKEY$<>"" OR MOUSEK<>0
+WEND
+FOR i&=0 TO 9
+pis(0,(i&+1)*16,STR$(i&+1),6)
+pis(32,(i&+1)*16,mm$(i&),6)
+pis(220,(i&+1)*16,STR$(sco%(i&)),6)
+NEXT i&
+i&=150
+ii&=-1
+pis(0,192,"press fire to continue or",3)
+pis(0,208,"left mousebotton to save hiscores",3)
+WHILE @joyf=0 AND ink$=""
+ink$=INKEY$
+IF MOUSEK<>0
+OPEN "o",#1,"HiScores"
+FOR i&=0 TO 9
+WRITE #1,sco%(i&),mm$(i&)
+NEXT i&
+CLOSE #1
+WHILE MOUSEK<>0
+WEND
+~ScreenToFront(scr%(0))
+ENDIF
+ADD i&,ii&
+IF i&=150 OR i&=0
+ii&=-ii&
+ADD i&,ii&
+ENDIF
+SETCOLOR 6,15,i&/10,0
+~Delay(1)
+WEND
+ENDIF
+RETURN
+'
+> PROCEDURE font(rp%,font$,height%,flags%) !nacitanie font
+$P<
+LOCAL libname$,diskfontbase%,font%
+libname$="diskfont.library"+CHR$(0)
+diskfontbase%=OpenLibrary(VARPTR(libname$),0)
+textattr%=AllocMem(100,65537)
+font$=font$+".font"+CHR$(0)
+{textattr%}=VARPTR(font$)
+CARD{textattr%+4}=height%
+BYTE{textattr%+6}=0
+BYTE{textattr%+7}=flags%
+font%=OpenDiskFont(textattr%)
+~SetFont(rp%,font%)
+~CloseLibrary(diskfontbase%)
+~CloseFont(font%)
+~FreeMem(textattr%,100)
+RETURN
+> PROCEDURE pis(x%,y%,text$,a%) !pise farebne x,y,text,farba
+$P<
+~SetAPen(wrp%(0),a%)
+~Move(wrp%(0),x%,y%)
+~Text(wrp%(0),VARPTR(text$),LEN(text$))
+RETURN
+> PROCEDURE pis2(x%,y%,text$,a%,b%) !pise kombinovane a,b
+$P<
+~SetDrMd(wrp%(0),0)
+pis(x%,y%,text$,a%)
+pis(x%+1,y%+1,text$,b%)
+~SetDrMd(wrp%(0),1)
+RETURN
