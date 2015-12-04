@@ -74,7 +74,27 @@ PROCEDURE initgame
   ON ERROR GOSUB gameerror !if there is an error
   ON BREAK GOSUB gameerror !ctrl+shift+alt pressed
   toplevel&=6 !kolko je maximalne levelov
-  DIM bit%(1,2),obrmem%(9,2),palko$(49),duch$(35),miesto%(9),dd&(2,7),sjvz&(3),tele&(2),vec$(11),mm$(9),sco%(9),code$(15)
+  las.max=4
+  las.num=0
+  DIM las.img$(las.max)         !pozadie laseru
+  DIM las.x&(las.max)           !x position
+  DIM las.y&(las.max)           !y position
+  DIM las.lx&(las.max)          !last x position
+  DIM las.ly&(las.max)          !last y position
+  DIM las.vx&(las.max)          !x vector
+  DIM las.vy&(las.max)          !y vector
+  DIM bit%(1,2)
+  DIM obrmem%(9,2)
+  DIM palko$(49)
+  DIM duch$(35)
+  DIM miesto%(9)
+  DIM dd&(2,7)
+  DIM sjvz&(3)
+  DIM tele&(2)
+  DIM vec$(11)
+  DIM mm$(9)
+  DIM sco%(9)
+  DIM code$(15)
   '
   DIM scr%(1),win%(1) !adresy screenov a okien
   DIM srp%(1),wrp%(1) !rast porty
@@ -1236,7 +1256,7 @@ PROCEDURE fall.left
   exit_fall.left:
   g=3
 RETURN
-PROCEDURE laser
+PROCEDURE laserold
   $P<
   LOCAL aa&,to&
   IF laser&=0
@@ -1295,7 +1315,7 @@ PROCEDURE laser
       FOR i&=0 TO 20
         LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
       NEXT i&
-      f.1
+      ' ' f.1
       b&=INT(y&/16)*16
       m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
       IF BYTE{m%}=2
@@ -1363,7 +1383,7 @@ PROCEDURE laser
       FOR i&=0 TO 20
         LINE a&+RAND(7)-3,b&+RAND(7)-3,a&+RAND(17)-8,b&+RAND(17)-8
       NEXT i&
-      f.1
+      ' ' f.1
       b&=INT(y&/16)*16
       m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
       IF BYTE{m%}=2
@@ -1391,6 +1411,54 @@ PROCEDURE laser
   PUT x&,y&,palko$(teraz&*7-7)
   inpbufclr
   exit_laser:
+RETURN
+PROCEDURE laser
+  $P<
+  IF laser&=0 OR las.num>las.max
+    GOTO exit_laser
+  ENDIF
+  PUT x&,y&,palko$(teraz&*7-7)
+  WHILE @joyf<>2 AND @joyy=1
+    ink$=INKEY$
+    ~Delay(1)
+    tim
+  WEND
+  IF @joyf=2
+    DEC laser&
+    INC las.num
+    IF teraz&=1
+      FOR i&=23 TO 24
+        PUT x&,y&,palko$(i&)
+        ~Delay(5)
+        tim
+      NEXT i&
+      b&=y&+10
+      a&=x&+20
+    ELSE
+      FOR i&=25 TO 26
+        PUT x&,y&,palko$(i&)
+        ~Delay(5)
+        tim
+      NEXT i&
+      b&=y&+10
+      a&=x&-4
+    ENDIF
+  ENDIF
+  ' PUT x&,y&,palko$(teraz&*7-7)
+  inpbufclr
+  exit_laser:
+RETURN
+PROCEDURE drawlaser
+  LOCAL m%
+  ADD las.x&(0),las.mx&(0) !move in specified vector
+  ADD las.y&(0),las.my&(0)
+  '
+  m%=miesto%+INT(a&/16)+INT(b&/16+1)*20
+  PUT las.x&(0),las.y&(0),lasimg$(0)    !new position
+  PUT las.lx&(0),las.ly&(0),lasimg$(0)  !old position
+  '
+  las.lx&(0)=las.x&(0) !save old position
+  las.ly&(0)=las.y&(0)
 RETURN
 PROCEDURE makebox !make 2 boxes under Palko
   $P<
@@ -1449,6 +1517,7 @@ RETURN
 '
 PROCEDURE tim !casovac pohybovania duchmi
   $P>
+  drawlaser
   ~Delay(1)
   cas&=-cas&
   IF cas&=1
