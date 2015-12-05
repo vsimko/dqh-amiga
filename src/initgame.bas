@@ -1,46 +1,48 @@
 PROCEDURE initgame
 
+  RESERVE 80000
+
   LOCAL i&
-  ON ERROR GOSUB gameerror !if there is an error
-  ON BREAK GOSUB gameerror !ctrl+shift+alt pressed
+  ON ERROR GOSUB gameerror  ! if there is an error
+  ON BREAK GOSUB gameerror  ! ctrl+shift+alt pressed
 
-  toplevel&=7 !kolko je maximalne levelov
-  las.max&=3
-  las.num&=-1
+  toplevel& = 7             ! how many game levels are supported
+  las.max& = 3
+  las.num& = -1
 
-  DIM las.ptr&(las.max&)         !pointer to used projectiles
+  DIM las.ptr&(las.max&)    ! pointer to used projectiles
 
   FOR i&=0 TO las.max&
     las.ptr&(i&)=i&
   NEXT i&
 
-  DIM las.img$(las.max&)        !background of laser
-  DIM las.x&(las.max&)          !x position
-  DIM las.y&(las.max&)          !y position
-  DIM las.lx&(las.max&)         !last x position
-  DIM las.ly&(las.max&)         !last y position
-  DIM las.vx&(las.max&)         !x vector
-  DIM las.vy&(las.max&)         !y vector
+  DIM las.img$(las.max&)    !background of laser
+  DIM las.x&(las.max&)      !x position
+  DIM las.y&(las.max&)      !y position
+  DIM las.lx&(las.max&)     !last x position
+  DIM las.ly&(las.max&)     !last y position
+  DIM las.vx&(las.max&)     !x vector
+  DIM las.vy&(las.max&)     !y vector
 
-  DIM bit%(1,2)                 !picture
-  DIM obrmem%(9,2)              !screens
-  DIM palko$(49)                !animation of palko
-  DIM duch$(35)                 !animation of ghost
-  DIM miesto%(9)                !
+  DIM bit%(1,2)             !picture
+  DIM obrmem%(9,2)          !screens
+  DIM palko$(49)            !animation of palko
+  DIM duch$(35)             !animation of ghost
+  DIM miesto%(9)            !
   DIM dd&(2,7)
-  DIM sjvz&(3)                  !
+  DIM sjvz&(3)              !
   DIM tele&(2)
-  DIM vec$(11)                  !pictures of items
+  DIM vec$(11)              !pictures of items
   DIM mm$(9)
   DIM sco%(9)
-  DIM code$(15)                 !passwords
-  '
-  DIM scr%(1),win%(1) !adresy screenov a okien
-  DIM srp%(1),wrp%(1) !rast porty
-  '
+  DIM code$(15)             !passwords
+
+  DIM scr%(1), win%(1)      !adresy screenov a okien
+  DIM srp%(1), wrp%(1)      !rast porty
+
   ' 0 = visible bitmap
   ' 1 = the huge invisible bitmap with patterns
-  '
+
   DEFFN l1=ASC(INPUT$(1,#1))       !nacita 1b
   DEFFN l2=WORD(CVI(INPUT$(2,#1))) !nacita 2b
 
