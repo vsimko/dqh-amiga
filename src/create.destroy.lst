@@ -1,19 +1,19 @@
-> PROCEDURE create(a&,b&,type&)
-LOCAL i&
-FOR i&=6 TO 8
-PUT a&,b&,vec$(i&)
-~Delay(1)
-tim
-NEXT i&
-PUT a&,b&,vec$(type&)
-RETURN
-> PROCEDURE destroy(a&,b&) ! animation of an explosion
-LOCAL i&
-FOR i&=6 TO 8 ! animate
-PUT a&,b&,vec$(i&)
-~Delay(1)
-NEXT i&
-COLOR 0
-PBOX a&,b&,a&+15,b&+15
+PROCEDURE create(a&,b&,type&)
+  LOCAL i&
+  FOR i&=6 TO 8
+    PUT a&,b&,vec$(i&)
+    ~Delay(1)
+    tim
+  NEXT i&
+  PUT a&,b&,vec$(type&)
 RETURN
 
+PROCEDURE destroy(a&,b&) ! animated explosion
+  LOCAL i&
+  FOR i&=6 TO 8 ! animate
+   PUT a&,b&,vec$(i&)
+   ~Delay(1)
+  NEXT i&
+  COLOR 0
+  PBOX a&,b&,a&+15,b&+15
+RETURN
