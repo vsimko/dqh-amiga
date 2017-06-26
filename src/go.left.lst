@@ -1,18 +1,25 @@
-> PROCEDURE go.left  !Palko ide <-
-$P>
-SUB x&,3
-poh&=-1
-INC obr&
-IF obr&>6
-obr&=1
-ENDIF
-IF x&<0
-scrnext
-ENDIF
-m%=miesto%+INT(x&/16)+INT(y&/16)*20
-ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
-ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
-PUT x&,y&,palko$(obr&+7)
+PROCEDURE go.left  !Palko ide <-
+  $P>
+  
+  SUB x&,3
+  poh&=-1
+  INC obr&
+  
+  IF obr&>6
+    obr&=1
+  ENDIF
+  
+  IF x&<0
+    scrnext
+  ENDIF
+  
+  m%=miesto%+INT(x&/16)+INT(y&/16)*20
+  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+  
+  m%=miesto%+INT(x&/16)+INT(y&/16+1)*20
+  ON BYTE{m%} GOSUB go.wall,go.wall,go.wall,go.wall,go.wall,go.wall,pick,pick,pick,pick,pick,pkill,pkill,pkill,pkill,pkill,pkill
+  
+  PUT x&,y&,palko$(obr&+7)
+  
 RETURN
 
