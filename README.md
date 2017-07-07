@@ -1,6 +1,7 @@
 # Devil's Queer House (1994-1996)
 
-![Devil's Queer House - Main Screen](Screenshots/web/dqh-intro.png)
+[![Devil's Queer House - Youtube Video](Screenshots/web/dqh-intro.png)](https://youtu.be/QQKVzZpXTpQ "Devil's Queer House - Youtube Video")
+
 
 ## Download
 * [Original DQH Game emulated using (E/Win)UAE available for Linux and Windows](https://github.com/vsimko/dqh-amiga/releases)
